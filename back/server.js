@@ -138,8 +138,6 @@ class Sqlite {
 
    // Set user
    setSignUserData(age, email, firstName, lastName, password) {
-      Debug.log('SQLite: create room.', { age, email, firstName, lastName, password })
-
       const stmt = this.db.prepare("INSERT INTO meeting VALUES (?,?,?,?,?)");
       
       const today = new Date().toLocaleDateString(undefined, {
@@ -157,22 +155,35 @@ class Sqlite {
 
    // Get user
    getSignUserData(email, password) {
-      Debug.log('SQLite: create room.', { email, password })
-
       this.db.run("SELECT count(*) cnt WHERE email=?, password=?",
-         [
-            email,
-            password
-         ],
+      [
+         email,
+         password
+      ],
          function (err, row) {
             if (err) {
-               return Debug.err('SQLite:  Failed in entering owner', err.message);
+               return Debug.err('SQLite:  Failed in signing user', err.message);
             } else {
                return row
             }
          }
       );
-   
+   }
+
+   // Get forgot password
+   getForgotPassword(email) {
+      this.db.run("SELECT count(*) cnt WHERE email=?",
+         [
+            email,
+         ],
+         function (err, row) {
+            if (err) {
+               return Debug.err('SQLite:  Failed in getting password', err.message);
+            } else {
+               return row
+            }
+         }
+      );
    }
 }
 Sqlite.getInstance().init()
@@ -193,6 +204,15 @@ webrtcApp.post('/getSignUserData', function (req, res) {
    const ret = Sqlite.getInstance().getSignUserData(email, password)
    // response to client
    console.log('getSignUserData ------------', ret)
+   res.send({ value: ret });
+})
+
+webrtcApp.post('/getForgotPassword', function (req, res) {
+   const { email } = req.body
+   // Save info to Sqlite database
+   const ret = Sqlite.getInstance().getForgotPassword(email)
+   // response to client
+   console.log('getForgotPassword ------------', ret)
    res.send({ value: ret });
 })
 

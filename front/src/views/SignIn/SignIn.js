@@ -14,7 +14,7 @@ import {
 
 import { API_URL } from '../../api/config'
 
-// import { Facebook as FacebookIcon, Google as GoogleIcon, Twitter as TwitterIcon } from 'icons';
+import { Facebook as FacebookIcon, Google as GoogleIcon, Twitter as TwitterIcon } from 'icons';
 
 const schema = {
   email: {
@@ -201,7 +201,7 @@ const SignIn = props => {
     })
     .then(res => res.json())
     .then(data => {
-      setSnackbar(true)
+      console.log('data-------', data)
     })
     .catch(err => console.log(err))
     // history.push('/dashboard');

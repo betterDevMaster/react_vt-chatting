@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import validate from 'validate.js';
 import { makeStyles } from '@material-ui/styles';
 import Snackbar from '@material-ui/core/Snackbar';
-import MuiAlert from '@material-ui/lab/Alert';
+// import MuiAlert from '@material-ui/lab/Alert';
 import {
   Grid,
   Button,
@@ -145,9 +145,9 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-function Alert(props) {
-  return <MuiAlert elevation={6} variant="filled" {...props} />;
-}
+// function Alert(props) {
+//   return <MuiAlert elevation={6} variant="filled" {...props} />;
+// }
 
 const SignUp = props => {
   const { history } = props;
@@ -400,10 +400,8 @@ const SignUp = props => {
         autoHideDuration={5000}
         open={snackbar}
         onClose={handleClose}
+        message={'User created!'}
         key={'top-center'}>
-          <Alert onClose={handleClose} severity="success">
-            User created!
-          </Alert>
       </Snackbar>
     </div>
   );

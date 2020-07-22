@@ -11,6 +11,8 @@ import {
   Typography
 } from '@material-ui/core';
 
+import { API_URL } from '../../api/config'
+
 const schema = {
   email: {
     presence: { allowEmpty: false, message: 'is required' },
@@ -150,6 +152,20 @@ const ForgotPassword = props => {
 
   const handleForgotPassword = event => {
     event.preventDefault();
+
+    fetch(`${API_URL}/getForgotPassword`, {
+      method: 'post',
+      headers: {
+        accept: 'application/json', 
+        'content-type': 'application/json'
+      },
+      body: JSON.stringify({ values: formState.values })
+    })
+    .then(res => res.json())
+    .then(data => {
+      console.log('data-------', data)
+    })
+    .catch(err => console.log(err))
     // history.push('/dashboard');
   };
 
