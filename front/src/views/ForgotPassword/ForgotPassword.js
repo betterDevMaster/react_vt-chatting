@@ -3,6 +3,8 @@ import { Link as RouterLink, withRouter } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import validate from 'validate.js';
 import { makeStyles } from '@material-ui/styles';
+import Snackbar from '@material-ui/core/Snackbar';
+
 import {
   Grid,
   Button,
@@ -121,6 +123,8 @@ const ForgotPassword = props => {
     errors: {}
   });
 
+  const [snackbar, setSnackbar] = useState(false)
+
   useEffect(() => {
     const errors = validate(formState.values, schema);
 
@@ -164,9 +168,18 @@ const ForgotPassword = props => {
     .then(res => res.json())
     .then(data => {
       console.log('data-------', data)
+      if (data.value !== '')
+        document.getElementById('getpassword').value = data.value
+      else
+        setSnackbar(true)
+
     })
     .catch(err => console.log(err))
     // history.push('/dashboard');
+  };
+
+  const handleClose = () => {
+    setSnackbar(false)
   };
 
   const hasError = field =>
@@ -236,6 +249,9 @@ const ForgotPassword = props => {
                   id="getpassword"
                   type="text"
                   value={formState.values.getpassword || ''}
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
                   variant="outlined"
                 />
 
@@ -268,6 +284,14 @@ const ForgotPassword = props => {
           </div>
         </Grid>
       </Grid>
+      <Snackbar
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        autoHideDuration={5000}
+        open={snackbar}
+        onClose={handleClose}
+        message={'Wrong Email!'}
+        key={'top-center'}>
+      </Snackbar>
     </div>
   );
 };

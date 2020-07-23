@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import validate from 'validate.js';
 import { makeStyles } from '@material-ui/styles';
 import Snackbar from '@material-ui/core/Snackbar';
-// import MuiAlert from '@material-ui/lab/Alert';
+
 import {
   Grid,
   Button,
@@ -145,10 +145,6 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-// function Alert(props) {
-//   return <MuiAlert elevation={6} variant="filled" {...props} />;
-// }
-
 const SignUp = props => {
   const { history } = props;
 
@@ -208,7 +204,7 @@ const SignUp = props => {
     })
     .catch(err => console.log(err))
     
-    history.push('/');
+    // history.push('/');
   };
 
   const handleClose = () => {

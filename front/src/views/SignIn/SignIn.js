@@ -14,19 +14,12 @@ import {
 
 import { API_URL } from '../../api/config';
 
-// import { FirebaseContext } from '../../components/Firebase';
-// // import { withFirebase } from '../../components/Firebase';
 import Firebase from '../../components/Firebase';
-import { FirebaseContext } from '../../components/Firebase';
 
-// import firebase from "../../api/firebaseConfig";
-import * as myfirebase from "firebase";
-
-const firebase = new Firebase();
-const auth = myfirebase.auth();
-const google_provider = new myfirebase.auth.GoogleAuthProvider(); 
-
-console.log('Firebase----------', firebase, auth, google_provider)
+const auth = Firebase.getInstance().auth;
+const googleAuth = Firebase.getInstance().googleAuth;
+const facebookAuth = Firebase.getInstance().facebookAuth;
+const twitterAuth = Firebase.getInstance().twitterAuth;
 
 const schema = {
   email: {
@@ -197,53 +190,58 @@ const SignIn = props => {
     }));
   };
 
-  const handleSignIn = event => {
-    event.preventDefault();
-
+  function validateSignUser(values) {
     fetch(`${API_URL}/getSignUserData`, {
       method: 'post',
       headers: {
         accept: 'application/json', 
         'content-type': 'application/json'
       },
-      body: JSON.stringify({ values: formState.values })
+      body: JSON.stringify({ values: values })
     })
     .then(res => res.json())
     .then(data => {
-      console.log('data-------', data)
+      if (data.value)
+        history.push('/dashboard');
     })
     .catch(err => console.log(err))
-    // history.push('/dashboard');
-  };
+  }
 
-  const goolgeSignIn = () => {
-    auth.signInWithPopup(google_provider)
+  const handleSignIn = event => {
+    event.preventDefault();
+    validateSignUser(formState.values)
+  };
+  
+  const handleGASign = () => {
+    auth.signInWithPopup(googleAuth)
       .then(res => {
-        console.log('-----------SignInWithPopup: ', res.additionalUserInfo.profile)
-        res.user.updateProfile({
-          displayName: res.additionalUserInfo.profile.given_name
-        })
-      .then(() => {
-        localStorage.setItem('user', JSON.stringify(res.user));
-        localStorage.setItem('loggedIn', true);
+        console.log('-----------SignInWithPopupGoogle: ', res.additionalUserInfo.profile)
+        validateSignUser({email: res.additionalUserInfo.profile.email, id: res.additionalUserInfo.profile.id })
+      })
+      .catch(err => { })
+  }
+
+  const handleFBASign = () => {
+    auth.signInWithPopup(facebookAuth)
+      .then(res => {
+        console.log('-----------SignInWithPopupFacebook: ', res.additionalUserInfo.profile)
+        validateSignUser({email: res.additionalUserInfo.profile.email, id: res.additionalUserInfo.profile.id })
       })
       .catch(err => {
         
       })
-      .catch(err => { });
-    })
-    console.log('props.firebase--------------', props.firebase)
-    // props.firebase
-    //   .doCreateUserWithEmailAndPassword(email, passwordOne)
-    //   .then(authUser => {
-    //     this.setState({ ...INITIAL_STATE });
-    //     this.props.history.push(ROUTES.HOME);
-    //   })
-    //   .catch(error => {
-    //     this.setState({ error });
-    //   });
   }
 
+  const handleTTASign = () => {
+    auth.signInWithPopup(twitterAuth)
+      .then(res => {
+        console.log('-----------SignInWithPopupTwitter: ', res.additionalUserInfo.profile)
+        validateSignUser({email: res.additionalUserInfo.profile.email, id: res.additionalUserInfo.profile.id })
+      })
+      .catch(err => {
+        
+      })
+  }
 
   const hasError = field =>
     formState.touched[field] && formState.errors[field] ? true : false;
@@ -294,7 +292,7 @@ const SignIn = props => {
                   <Grid item lg={12} xs={12} >
                     <Button
                       className={classes.socialFacebook}
-                      onClick={goolgeSignIn}
+                      onClick={handleFBASign}
                       size="large"
                       fullWidth
                       variant="contained"
@@ -310,7 +308,7 @@ const SignIn = props => {
                   <Grid item lg={12} xs={12}>
                     <Button
                       className={classes.socialGoogle}
-                      onClick={handleSignIn}
+                      onClick={handleGASign}
                       size="large"
                       fullWidth
                       variant="contained"
@@ -326,7 +324,7 @@ const SignIn = props => {
                   <Grid item lg={12} xs={12}>
                     <Button
                       className={classes.socialTwitter}
-                      onClick={handleSignIn}
+                      onClick={handleTTASign}
                       size="large"
                       fullWidth
                       variant="contained"

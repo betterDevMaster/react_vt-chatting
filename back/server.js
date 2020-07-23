@@ -115,7 +115,7 @@ class Sqlite {
    // Migration Sqlite. Function to create data table if it is not exists.
    migration() {
       Debug.log("SQLite: execute migration.");
-      this.db.run("CREATE TABLE if not exists meeting (email TEXT PRIMARY KEY, firstName TEXT, lastName TEXT, age INTEGER, password TEXT)",
+      this.db.run("CREATE TABLE if not exists meeting (email TEXT PRIMARY KEY, firstName TEXT, lastName TEXT, age INTEGER, password TEXT, today TEXT)",
          function (err) {
             if (err) Debug.err(' Failed in migration database.', err)
          }
@@ -125,7 +125,7 @@ class Sqlite {
    // Load initial value
    loadData() {
       Debug.log("SQLite: load initial data.");
-      this.db.each("SELECT email, firstName, lastName, age, password FROM meeting",
+      this.db.each("SELECT email, firstName, lastName, age, password, today FROM meeting",
          function (err, row) {
             if (err) {
                Debug.err(' Failed in load initial data.', err)
@@ -137,9 +137,7 @@ class Sqlite {
    }
 
    // Set user
-   setSignUserData(age, email, firstName, lastName, password) {
-      const stmt = this.db.prepare("INSERT INTO meeting VALUES (?,?,?,?,?)");
-      
+   setSignUserData(email, firstName, lastName, age, password) {
       const today = new Date().toLocaleDateString(undefined, {
          day: '2-digit',
          month: '2-digit',
@@ -149,30 +147,56 @@ class Sqlite {
          second: '2-digit'
       })
 
-      stmt.run(today, age, email, firstName, lastName, password);
+      const stmt = this.db.prepare("INSERT INTO meeting VALUES (?,?,?,?,?,?)");
+      stmt.run(email, firstName, lastName, age, password, today);
       stmt.finalize();
    }
 
    // Get user
-   getSignUserData(email, password) {
-      this.db.run("SELECT count(*) cnt WHERE email=?, password=?",
-      [
-         email,
-         password
-      ],
-         function (err, row) {
-            if (err) {
-               return Debug.err('SQLite:  Failed in signing user', err.message);
-            } else {
-               return row
+   getSignUserData(email, password='', id='', res) {
+      if (id === '') {
+         var sql = "SELECT COUNT(*) as cnt FROM meeting WHERE email=? AND password=?"
+         this.db.get(sql, 
+            [email, password], 
+            (err, row) => {
+               if (err) {
+                  console.error(err.message);
+                  res.send({ value: false });
+               }
+   
+               // response to client
+               if (row.cnt !== 0) {
+                  res.send({ value: true });
+               } else {
+                  res.send({ value: false });
+               }
             }
-         }
-      );
+         );
+      } 
+      if (password === '') {
+         var sql = "SELECT COUNT(*) as cnt FROM meeting WHERE email=?"
+         this.db.get(sql, 
+            [email], 
+            (err, row) => {
+               if (err) {
+                  console.error(err.message);
+                  res.send({ value: false });
+               }
+   
+               // response to client
+               if (row.cnt !== 0) {
+                  res.send({ value: true });
+               } else {
+                  res.send({ value: false });
+               }
+            }
+         );
+      }
    }
 
    // Get forgot password
-   getForgotPassword(email) {
-      this.db.run("SELECT count(*) cnt WHERE email=?",
+   getForgotPassword(email, res) {
+      this.db.get("SELECT count(*) AS cnt, password FROM meeting WHERE email=?",
          [
             email,
          ],
@@ -180,7 +204,12 @@ class Sqlite {
             if (err) {
                return Debug.err('SQLite:  Failed in getting password', err.message);
             } else {
-               return row
+               // response to client
+               if (row.cnt !== 0) {
+                  res.send({ value: row.password });
+               } else {
+                  res.send({ value: '' });
+               }
             }
          }
       );
@@ -191,29 +220,24 @@ Sqlite.getInstance().init()
 
 // Post/Get Messages
 webrtcApp.post('/setSignUserData', function (req, res) {
-   const { age, email, firstName, lastName, password } = req.body
+   const { age, email, firstName, lastName, password } = req.body.values
    // Save info to Sqlite database
-   Sqlite.getInstance().setSignUserData(age, email, firstName, lastName, password)
+   Sqlite.getInstance().setSignUserData(email, firstName, lastName, age, password)
    // response to client
    res.send({ value: 'Success' });
 })
 
 webrtcApp.post('/getSignUserData', function (req, res) {
-   const { email, password } = req.body
+   const { email, password, id } = req.body.values
+   console.log('getSignUserData----------', email, password, id)
    // Save info to Sqlite database
-   const ret = Sqlite.getInstance().getSignUserData(email, password)
-   // response to client
-   console.log('getSignUserData ------------', ret)
-   res.send({ value: ret });
+   Sqlite.getInstance().getSignUserData(email, password, id, res)
 })
 
 webrtcApp.post('/getForgotPassword', function (req, res) {
-   const { email } = req.body
+   const { email } = req.body.values
    // Save info to Sqlite database
-   const ret = Sqlite.getInstance().getForgotPassword(email)
-   // response to client
-   console.log('getForgotPassword ------------', ret)
-   res.send({ value: ret });
+   Sqlite.getInstance().getForgotPassword(email, res) 
 })
 
 // Catch all to handle all other requests that come into the app.
