@@ -15,7 +15,7 @@ import {
   Typography
 } from '@material-ui/core';
 
-import { API_URL } from '../../api/config'
+import { API_URL } from '../../common/api'
 
 const schema = {
   firstName: {
