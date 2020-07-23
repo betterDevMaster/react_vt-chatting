@@ -12,9 +12,21 @@ import {
   Typography
 } from '@material-ui/core';
 
-import { API_URL } from '../../api/config'
+import { API_URL } from '../../api/config';
 
-import { Facebook as FacebookIcon, Google as GoogleIcon, Twitter as TwitterIcon } from 'icons';
+// import { FirebaseContext } from '../../components/Firebase';
+// // import { withFirebase } from '../../components/Firebase';
+import Firebase from '../../components/Firebase';
+import { FirebaseContext } from '../../components/Firebase';
+
+// import firebase from "../../api/firebaseConfig";
+import * as myfirebase from "firebase";
+
+const firebase = new Firebase();
+const auth = myfirebase.auth();
+const google_provider = new myfirebase.auth.GoogleAuthProvider(); 
+
+console.log('Firebase----------', firebase, auth, google_provider)
 
 const schema = {
   email: {
@@ -143,6 +155,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
+
 const SignIn = props => {
   const { history } = props;
 
@@ -164,10 +177,6 @@ const SignIn = props => {
       errors: errors || {}
     }));
   }, [formState.values]);
-
-  const handleBack = () => {
-    history.goBack();
-  };
 
   const handleChange = event => {
     event.persist();
@@ -206,6 +215,35 @@ const SignIn = props => {
     .catch(err => console.log(err))
     // history.push('/dashboard');
   };
+
+  const goolgeSignIn = () => {
+    auth.signInWithPopup(google_provider)
+      .then(res => {
+        console.log('-----------SignInWithPopup: ', res.additionalUserInfo.profile)
+        res.user.updateProfile({
+          displayName: res.additionalUserInfo.profile.given_name
+        })
+      .then(() => {
+        localStorage.setItem('user', JSON.stringify(res.user));
+        localStorage.setItem('loggedIn', true);
+      })
+      .catch(err => {
+        
+      })
+      .catch(err => { });
+    })
+    console.log('props.firebase--------------', props.firebase)
+    // props.firebase
+    //   .doCreateUserWithEmailAndPassword(email, passwordOne)
+    //   .then(authUser => {
+    //     this.setState({ ...INITIAL_STATE });
+    //     this.props.history.push(ROUTES.HOME);
+    //   })
+    //   .catch(error => {
+    //     this.setState({ error });
+    //   });
+  }
+
 
   const hasError = field =>
     formState.touched[field] && formState.errors[field] ? true : false;
@@ -256,7 +294,7 @@ const SignIn = props => {
                   <Grid item lg={12} xs={12} >
                     <Button
                       className={classes.socialFacebook}
-                      onClick={handleSignIn}
+                      onClick={goolgeSignIn}
                       size="large"
                       fullWidth
                       variant="contained"
