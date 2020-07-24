@@ -10,11 +10,12 @@ const useStyles = makeStyles(theme => ({
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    minHeight: 'fit-content'
+    minHeight: 'fit-content',
   },
   avatar: {
-    width: 60,
-    height: 60
+    width: 120,
+    height: 120,
+    marginTop: theme.spacing(5)
   },
   name: {
     marginTop: theme.spacing(1)

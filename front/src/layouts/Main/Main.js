@@ -8,17 +8,27 @@ import { Sidebar, Topbar, Footer } from './components';
 
 const useStyles = makeStyles(theme => ({
   root: {
+    
+    // padding: '150px 350px 150px 350px',
+    // width: '100%',
+    // height: '100%',
+    // overflow: 'hidden',
     paddingTop: 56,
     height: '100%',
     [theme.breakpoints.up('sm')]: {
       paddingTop: 64
-    }
+    },
+    
   },
   shiftContent: {
-    paddingLeft: 240
+    paddingLeft: 300
   },
   content: {
     height: '100%'
+    // width: '100%',
+    // height: '100%',
+    // overflowY: 'scroll',
+    // boxShadow: '0 0 18px 10px rgba(0,0,0,0.2)'
   }
 }));
 
@@ -50,13 +60,13 @@ const Main = props => {
         [classes.shiftContent]: isDesktop
       })}
     >
-      <Topbar onSidebarOpen={handleSidebarOpen} />
-      <Sidebar
-        onClose={handleSidebarClose}
-        open={shouldOpenSidebar}
-        variant={isDesktop ? 'persistent' : 'temporary'}
-      />
       <main className={classes.content}>
+        <Topbar onSidebarOpen={handleSidebarOpen} />
+        <Sidebar
+          onClose={handleSidebarClose}
+          open={shouldOpenSidebar}
+          variant={isDesktop ? 'persistent' : 'temporary'}
+        />
         {children}
         <Footer />
       </main>

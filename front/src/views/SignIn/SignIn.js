@@ -2,7 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Link as RouterLink, withRouter } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import validate from 'validate.js';
-import { makeStyles } from '@material-ui/styles';
+import { makeStyles, useTheme } from '@material-ui/styles';
+// import Carousel from 'react-material-ui-carousel'
+import {Paper} from '@material-ui/core'
+import SwipeableViews from 'react-swipeable-views';
+import { autoPlay } from 'react-swipeable-views-utils';
+
 import {
   Grid,
   Button,
@@ -15,6 +20,7 @@ import {
 import { API_URL } from '../../common/api';
 
 import Firebase from '../../components/Firebase';
+import { duration } from 'moment';
 
 const auth = Firebase.getInstance().auth;
 const googleAuth = Firebase.getInstance().googleAuth;
@@ -37,6 +43,32 @@ const schema = {
   }
 };
 
+const AutoPlaySwipeableViews = autoPlay(SwipeableViews);
+
+const tutorialSteps = [
+  {
+    imgPath:
+      './images/carousels/1.jpeg',
+  },
+  {
+    imgPath:
+    './images/carousels/2.jpg',
+  },
+  {
+    imgPath:
+      './images/carousels/3.jpg',
+  },
+  // {
+  //   imgPath:
+  //     'https://images.unsplash.com/photo-1518732714860-b62714ce0c59?auto=format&fit=crop&w=400&h=250&q=60',
+  // },
+  // {
+  //   imgPath:
+  //     'https://images.unsplash.com/photo-1512341689857-198e7e2f3ca8?auto=format&fit=crop&w=400&h=250&q=60',
+  // },
+];
+
+
 const useStyles = makeStyles(theme => ({
   root: {
     backgroundColor: theme.palette.background.default,
@@ -57,18 +89,13 @@ const useStyles = makeStyles(theme => ({
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundImage: 'url(/images/auth.jpg)',
     backgroundSize: 'cover',
     backgroundRepeat: 'no-repeat',
     backgroundPosition: 'center',
   },
-  quoteInner: {
-    textAlign: 'center',
-    flexBasis: '600px'
-  },
-  quoteText: {
-    color: theme.palette.white,
-    fontWeight: 300
+  quoteItem: {
+    width: '100%',
+    height: '100%',
   },
   name: {
     marginTop: theme.spacing(3),
@@ -130,15 +157,18 @@ const useStyles = makeStyles(theme => ({
   },
   socialFacebook: {
     margin: theme.spacing(1, 0),
-    backgroundColor: '#4756ab'
+    backgroundColor: '#4756ab',
+    borderRadius: '45%'
   },
   socialGoogle: {
     margin: theme.spacing(1, 0),
-    backgroundColor: '#dc4e41'
+    backgroundColor: '#dc4e41',
+    borderRadius: '45%',
   },
   socialTwitter: {
     margin: theme.spacing(1, 0),
-    backgroundColor: '#55acee'
+    backgroundColor: '#55acee',
+    borderRadius: '45%',
   },
   signInButton: {
     margin: theme.spacing(2, 0)
@@ -153,6 +183,7 @@ const SignIn = props => {
   const { history } = props;
 
   const classes = useStyles();
+  const theme = useTheme();
 
   const [formState, setFormState] = useState({
     isValid: false,
@@ -243,6 +274,15 @@ const SignIn = props => {
       })
   }
 
+  function Item(props)
+  {
+      return (
+          <Paper className={classes.quoteItem}>
+              <img className={classes.quoteItem} src={props.item.src}></img>
+          </Paper>
+      )
+  }
+
   const hasError = field =>
     formState.touched[field] && formState.errors[field] ? true : false;
 
@@ -255,15 +295,26 @@ const SignIn = props => {
         <Grid
           className={classes.quoteContainer}
           item
-          lg={6}
+          lg={8}
         >
-          <div className={classes.quote}>
-          </div>
+          <AutoPlaySwipeableViews
+            axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'}
+            enableMouseEvents
+            interval={5000}
+            animation={'fade'}
+            className={classes.quoteItem}
+          >
+            {tutorialSteps.map((step, index) => (
+              <div key={step.label} className={classes.quoteItem}>
+                  <img className={classes.quoteItem} src={step.imgPath} alt={step.label} />
+              </div>
+            ))}
+          </AutoPlaySwipeableViews>
         </Grid>
         <Grid
           className={classes.content}
           item
-          lg={6}
+          lg={4}
           xs={12}
         >
           <div className={classes.content}>

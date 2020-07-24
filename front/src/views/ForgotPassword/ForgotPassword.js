@@ -194,7 +194,7 @@ const ForgotPassword = props => {
         <Grid
           className={classes.quoteContainer}
           item
-          lg={6}
+          lg={8}
         >
           <div className={classes.quote}>
           </div>
@@ -202,7 +202,7 @@ const ForgotPassword = props => {
         <Grid
           className={classes.content}
           item
-          lg={6}
+          lg={4}
           xs={12}
         >
           <div className={classes.content}>

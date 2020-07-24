@@ -6,13 +6,13 @@ import { makeStyles } from '@material-ui/styles';
 
 const useStyles = makeStyles(() => ({
   root: {
-    padding: 100,
+    // padding: '150px 350px 150px 350px',
     width: '100%',
     height: '100%',
   },
   content: {
     height: '100%',
-    boxShadow: '0 0 18px 10px rgba(0,0,0,0.2)'
+    // boxShadow: '0 0 18px 10px rgba(0,0,0,0.2)'
   }
 }));
 

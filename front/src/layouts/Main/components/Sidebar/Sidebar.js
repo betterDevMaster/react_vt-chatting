@@ -16,10 +16,10 @@ import { Profile, SidebarNav, UpgradePlan } from './components';
 
 const useStyles = makeStyles(theme => ({
   drawer: {
-    width: 240,
+    width: 300,
     [theme.breakpoints.up('lg')]: {
-      marginTop: 64,
-      height: 'calc(100% - 64px)'
+      height: '100%',
+      zIndex: 1300
     }
   },
   root: {
@@ -30,7 +30,7 @@ const useStyles = makeStyles(theme => ({
     padding: theme.spacing(2)
   },
   divider: {
-    margin: theme.spacing(2, 0)
+    margin: theme.spacing(2, 0),
   },
   nav: {
     marginBottom: theme.spacing(2)
@@ -99,11 +99,14 @@ const Sidebar = props => {
       >
         <Profile />
         <Divider className={classes.divider} />
-        <SidebarNav
+        <video className='video' controls loop="" >
+          <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4" />
+        </video>
+        {/* <SidebarNav
           className={classes.nav}
           pages={pages}
         />
-        <UpgradePlan />
+        <UpgradePlan /> */}
       </div>
     </Drawer>
   );
