@@ -1,0 +1,32 @@
+.local-video-wrapper {
+  margin-bottom: 40px;
+}
+#localVideo {
+  width: 100%;
+}
+.video-wrapper {
+  width: 100%;
+}
+#remoteVideo {
+  width: 100%;
+}
+#remoteVideo.hide {
+  display: none;
+}
+.video-wrapper .status {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: greenyellow;
+  height: 100%;
+}
+
+.controls{
+  position: absolute;
+}
+.control-btn{
+  position: relative;
+  background: transparent;
+  outline: none;
+  border: none;
+}
