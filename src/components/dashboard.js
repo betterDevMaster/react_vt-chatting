@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import VideoPanel from './videoPanel';
-import ChatPanel from './chatPanel';
 import ChatBoard from './ChatBoard/ChatBoard'
 import '../styles/dashboard.css'
 

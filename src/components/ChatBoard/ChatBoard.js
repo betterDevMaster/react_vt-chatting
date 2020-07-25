@@ -265,7 +265,7 @@ export default class ChatBoard extends Component {
 
                     <button
                       className='control-btn'
-                      onChange={this.openListSticker}
+                      onClick={this.openListSticker}
                     >
                         <GifUpload/>
                     </button>
@@ -362,8 +362,8 @@ export default class ChatBoard extends Component {
                                 </div>
                                 {this.isLastMessageLeft(index) ? (
                                     <span className="textTimeLeft">
-                    {moment(Number(item.timestamp)).format('ll')}
-                  </span>
+                                        {moment(Number(item.timestamp)).format('ll')}
+                                    </span>
                                 ) : null}
                             </div>
                         )
@@ -418,8 +418,8 @@ export default class ChatBoard extends Component {
                                 </div>
                                 {this.isLastMessageLeft(index) ? (
                                     <span className="textTimeLeft">
-                    {moment(Number(item.timestamp)).format('ll')}
-                  </span>
+                                        {moment(Number(item.timestamp)).format('ll')}
+                                    </span>
                                 ) : null}
                             </div>
                         )
