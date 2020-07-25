@@ -1,61 +1,32 @@
 {
-  "name": "react-material-dashboard",
-  "author": "DeviasIO",
-  "email": "contact@devias.io",
-  "licence": "MIT",
-  "version": "0.3.0",
-  "private": false,
+  "name": "webrtc",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "express": "^4.16.4",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "react-router-dom": "^4.2.2",
+    "react-scripts": "2.1.8",
+    "shortid": "^2.2.14",
+    "simple-peer": "^9.5.0",
+    "socket.io": "^2.2.0",
+    "socket.io-client": "^2.2.0"
+  },
+  "alias": [
+    "video-chat.now.sh"
+  ],
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
+    "start:local": "node server/server.js && export NODE_ENV=local && react-scripts start",
+    "build": "export NODE_ENV=production && react-scripts build",
+    "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
   },
-  "eslintConfig": {
-    "extends": "react-app"
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
-  "dependencies": {
-    "@material-ui/core": "^4.2.1",
-    "@material-ui/icons": "^4.2.1",
-    "@material-ui/styles": "^4.2.1",
-    "chart.js": "^2.8.0",
-    "clsx": "^1.0.4",
-    "firebase": "^7.16.1",
-    "history": "^4.9.0",
-    "moment": "^2.24.0",
-    "node-sass": "^4.12.0",
-    "prop-types": "^15.7.2",
-    "react": "^16.8.6",
-    "react-chartjs-2": "^2.7.6",
-    "react-dom": "^16.8.6",
-    "react-material-ui-carousel": "^1.7.1",
-    "react-perfect-scrollbar": "^1.5.3",
-    "react-router-dom": "^5.0.1",
-    "react-scripts": "^3.0.1",
-    "react-swipeable-views": "^0.13.9",
-    "recompose": "^0.30.0",
-    "underscore": "^1.9.1",
-    "uuid": "^3.3.2",
-    "validate.js": "^0.13.1"
-  },
-  "devDependencies": {
-    "eslint-plugin-prettier": "^3.0.1",
-    "eslint-plugin-react": "^7.12.4",
-    "prettier": "^1.17.1",
-    "prettier-eslint": "^8.8.2",
-    "prettier-eslint-cli": "^4.7.1",
-    "typescript": "^3.5.1"
-  }
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ]
 }

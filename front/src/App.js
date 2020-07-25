@@ -1,37 +1,27 @@
 import React, { Component } from 'react';
-import { Router } from 'react-router-dom';
-import { createBrowserHistory } from 'history';
-import { Chart } from 'react-chartjs-2';
-import { ThemeProvider } from '@material-ui/styles';
-import validate from 'validate.js';
-
-import { chartjs } from './helpers';
-import theme from './theme';
-import 'react-perfect-scrollbar/dist/css/styles.css';
-import './assets/scss/index.scss';
-import validators from './common/validators';
-import Routes from './Routes';
 import './App.css';
+import './styles/video.css'
+import { BrowserRouter, Route } from 'react-router-dom';
 
-const browserHistory = createBrowserHistory();
+import Dashboard from './components/dashboard';
+import Video from './components/video'
+import GoToRoomInput from './components/goToRoomInput';
 
-Chart.helpers.extend(Chart.elements.Rectangle.prototype, {
-  draw: chartjs.draw
-});
-
-validate.validators = {
-  ...validate.validators,
-  ...validators
-};
-
-export default class App extends Component {
+class App extends Component {
   render() {
     return (
-      <ThemeProvider theme={theme}>
-        <Router history={browserHistory}>
-          <Routes />
-        </Router>
-      </ThemeProvider>
-    );
+      <BrowserRouter>
+        <React.Fragment>
+          <Route path="/" exact component={GoToRoomInput}/>
+          {/* <Route path="/dashboard/:roomId" exact component={Dashboard}/> */}
+          {/* <Route path="/dashboard" exact component={Dashboard}/> */}
+          {/* <Route path="/roomInput" exact component={GoToRoomInput}/> */}
+          {/* <Route path="/:roomId" exact component={Video}/> */}
+          <Route path="/:roomId" exact component={Dashboard}/>
+        </React.Fragment>
+      </BrowserRouter>
+    )
   }
 }
+
+export default App;

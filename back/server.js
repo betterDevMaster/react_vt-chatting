@@ -266,82 +266,88 @@ easyrtc.setOption('appIceServers', [
 easyrtc.listen(webrtcApp, socketServer);
 
 /// Chating
-const saveMsgContent = (peerName, roomName, content) => {
-   const retMessage = { username: peerName, message: content.message, time: content.time }
-   const retFile = { username: peerName, content: content.message, time: content.time, name: content.title }
+// const saveMsgContent = (peerName, roomName, content) => {
+//    const retMessage = { username: peerName, message: content.message, time: content.time }
+//    const retFile = { username: peerName, content: content.message, time: content.time, name: content.title }
 
-   if (Global.rooms[roomName]) {
-      content.title ? Global.rooms[roomName].file.push(retFile) : Global.rooms[roomName].chat.push(retMessage)
-   }
-}
+//    if (Global.rooms[roomName]) {
+//       content.title ? Global.rooms[roomName].file.push(retFile) : Global.rooms[roomName].chat.push(retMessage)
+//    }
+// }
 
-easyrtc.events.on("easyrtcMsg", function (connectionObj, message, callback) {
-   switch (message.msgType) {
-      case 'save_message_content':
-         saveMsgContent( message.msgData.clientName, message.msgData.roomName, message.msgData.content);
-         // saveMsgContent(message.msgData.clientId, message.msgData.clientName, message.msgData.roomName, message.msgData.content);
+// easyrtc.events.on("easyrtcMsg", function (connectionObj, message, callback) {
+//    switch (message.msgType) {
+//       case 'save_message_content':
+//          saveMsgContent( message.msgData.clientName, message.msgData.roomName, message.msgData.content);
+//          // saveMsgContent(message.msgData.clientId, message.msgData.clientName, message.msgData.roomName, message.msgData.content);
 
-         return true
-   }
-   connectionObj.events.emitDefault("easyrtcMsg", connectionObj, message, callback);
-});
+//          return true
+//    }
+//    connectionObj.events.emitDefault("easyrtcMsg", connectionObj, message, callback);
+// });
 
-// Owner leave the Room via socket.io
-easyrtc.events.on("roomLeave", function (connectionObj, roomName, callback) {  
+// // Owner leave the Room via socket.io
+// easyrtc.events.on("roomLeave", function (connectionObj, roomName, callback) {  
+//    connectionObj.events.emitDefault("roomLeave", connectionObj, roomName, callback);
+//    if (roomName != 'default') {
+//       if (!Global.rooms[roomName]) {
+//          Debug.err(' RoomLeave. ', roomName)
+//       } else {
+//          if (Global.rooms[roomName].owner === roomName && Global.rooms[roomName].child.length !== 0) {
+//             var duration = Math.floor((Date.now() - Global.rooms[roomName].enterTime) / 1000);
+
+//             const exithistory = { meeting_id: Global.rooms[roomName].meeting_id, duration: duration, chat: Global.rooms[roomName].chat, 
+//                                     file: Global.rooms[roomName].file }
+//             console.log(' Chatting History: ', roomName, Global.rooms[roomName], exithistory)
+
+//             for (const childConnectionObj of Global.rooms[roomName].child) {
+//                childConnectionObj.disconnect(() => { });
+//             }
+
+//             request.post(Global.rooms[roomName].return_url, {
+//                json: {
+//                   reqData: exithistory
+//                }
+//             }, (err, res, body) => {
+//                if (err) {
+//                   Debug.err(' Failed in sending room history. ', err)
+//                   return
+//                }
+
+//                Global.rooms[roomName].enter_room = 'leave'
+//                Global.rooms[roomName].owner = ''
+//                Global.rooms[roomName].chat = []
+//                Global.rooms[roomName].file = []
+//                Global.rooms[roomName].child = []
+//                // Sqlite.getInstance().ownerStatus(roomName, 'leave');
+//             })
+//          }
+//       }
+//    }
+// });
+
+// // Owner Join the Room via socket.io
+// easyrtc.events.on("roomJoin", function (connectionObj, roomName, roomParam, callback) {  // Owner create the Room
+//    if (roomName != 'default') {
+//       // if (!Global.rooms[roomName])
+//       //    return
+
+//       if (Global.rooms[roomName].child.length === 0) {
+//          Global.rooms[roomName].enterTime = Date.now()
+//          Global.rooms[roomName].owner = roomName
+//          Global.rooms[roomName].chat = []
+//          Global.rooms[roomName].file = []
+//          Global.rooms[roomName].child.push(connectionObj); // means owner
+//       }
+//       Debug.log(' All data after joining to room', Global.rooms)
+//    }
+//    connectionObj.events.emitDefault("roomJoin", connectionObj, roomName, roomParam, callback);
+// });
+
+
+easyrtc.events.on("roomLeave", function(connectionObj, roomName, callback){
+   console.log('roomLeave: ', roomName)
+   // peerPositions = peerPositions.filter((peer)=>peer.socketId !== connectionObj.socket.id)
+   // console.log(peerPositions);
    connectionObj.events.emitDefault("roomLeave", connectionObj, roomName, callback);
-   if (roomName != 'default') {
-      if (!Global.rooms[roomName]) {
-         Debug.err(' RoomLeave. ', roomName)
-      } else {
-         if (Global.rooms[roomName].owner === roomName && Global.rooms[roomName].child.length !== 0) {
-            var duration = Math.floor((Date.now() - Global.rooms[roomName].enterTime) / 1000);
-
-            const exithistory = { meeting_id: Global.rooms[roomName].meeting_id, duration: duration, chat: Global.rooms[roomName].chat, 
-                                    file: Global.rooms[roomName].file }
-            console.log(' Chatting History: ', roomName, Global.rooms[roomName], exithistory)
-
-            for (const childConnectionObj of Global.rooms[roomName].child) {
-               childConnectionObj.disconnect(() => { });
-            }
-
-            request.post(Global.rooms[roomName].return_url, {
-               json: {
-                  reqData: exithistory
-               }
-            }, (err, res, body) => {
-               if (err) {
-                  Debug.err(' Failed in sending room history. ', err)
-                  return
-               }
-
-               Global.rooms[roomName].enter_room = 'leave'
-               Global.rooms[roomName].owner = ''
-               Global.rooms[roomName].chat = []
-               Global.rooms[roomName].file = []
-               Global.rooms[roomName].child = []
-               // Sqlite.getInstance().ownerStatus(roomName, 'leave');
-            })
-         }
-      }
-   }
-});
-
-// Owner Join the Room via socket.io
-easyrtc.events.on("roomJoin", function (connectionObj, roomName, roomParam, callback) {  // Owner create the Room
-   if (roomName != 'default') {
-      if (!Global.rooms[roomName])
-         return
-
-      if (Global.rooms[roomName].child.length === 0) {
-         Global.rooms[roomName].enterTime = Date.now()
-         Global.rooms[roomName].owner = roomName
-         Global.rooms[roomName].chat = []
-         Global.rooms[roomName].file = []
-         Global.rooms[roomName].child.push(connectionObj); // means owner
-      }
-      Debug.log(' All data after joining to room', Global.rooms)
-   }
-   connectionObj.events.emitDefault("roomJoin", connectionObj, roomName, roomParam, callback);
-});
-
-
+ });
