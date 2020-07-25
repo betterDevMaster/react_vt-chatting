@@ -200,19 +200,47 @@ export default class ChatBoard extends Component {
         }
     }
 
+    onSetting = () => {
+
+    }
+
+    onNext = () => {
+
+    }
+
+    onExit = () => {
+        console.log(this.props)
+        this.props.params.history.push('/')
+    }
+
     render() {
         return (
-            <div className="viewChatBoard css-1dbjc4n">
+            <div className="viewChatBoard baseBoard">
                 {/* Header */}
                 <div className="headerChatBoard">
-                    <img
-                        className="viewAvatarItem"
-                        src={this.currentPeerUser.photoUrl}
-                        alt="icon avatar"
-                    />
-                    <span className="textHeaderChatBoard">
-                        {this.currentPeerUser.nickname}
-                    </span>
+                    <h2 aria-level="2" dir="ltr" className="css-4rbku5 css-901oao css-bfa6kz r-jwli3a r-1qd0xha r-1vr29t4 r-bcqeeo" id="root-header">
+                        <span className="css-901oao css-16my406 r-1qd0xha r-ad9z0x r-bcqeeo r-qvutc0">Messages</span>
+                    </h2>
+                    <div className='viewBottom'>
+                        <button
+                            className='control-btn'
+                            onClick={this.onSetting}
+                        >
+                            <SettingChat/>
+                        </button>
+                        <button
+                            className='control-btn'
+                            onClick={this.onNext}
+                        >
+                            <NextChat/>
+                        </button>
+                        <button
+                            className='control-btn'
+                            onClick={this.onExit}
+                        >
+                            <ExitChat/>
+                        </button>
+                    </div>
                 </div>
 
                 {/* List message */}
@@ -231,21 +259,12 @@ export default class ChatBoard extends Component {
 
                 {/* View bottom */}
                 <div className="viewBottom">
-                    {/* <img
-                        className="icOpenGallery"
-                        src={images.ic_photo}
-                        alt="icon open gallery"
-                        onClick={() => this.refInput.click()}
-                    /> */}
-                    
                     <button
                       className='control-btn'
                       onClick={() => this.refInput.click()}
                     >
                         <ImageUpload/>
                     </button>
-                    
-                    
                     <input
                         ref={el => {
                             this.refInput = el
@@ -255,21 +274,12 @@ export default class ChatBoard extends Component {
                         type="file"
                         onChange={this.onChoosePhoto}
                     />
-
-                    {/* <img
-                        className="icOpenSticker"
-                        src={images.ic_sticker}
-                        alt="icon open sticker"
-                        onClick={this.openListSticker}
-                    /> */}
-
                     <button
                       className='control-btn'
                       onClick={this.openListSticker}
                     >
                         <GifUpload/>
                     </button>
-
                     <input
                         className="viewInput"
                         placeholder="Start a new message..."
@@ -285,12 +295,6 @@ export default class ChatBoard extends Component {
                     >
                         <MessageSend/>
                     </button>
-                    {/* <img
-                        className="icSend"
-                        src={images.ic_send}
-                        alt="icon send"
-                        onClick={() => this.onSendMessage(this.state.inputValue, 0)}
-                    /> */}
                 </div>
 
                 {/* Loading */}
