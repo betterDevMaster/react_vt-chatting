@@ -307,3 +307,19 @@ input::placeholder {
     height: 40px;
     margin-left: 10px;
 }
+
+/* Modal Custom */
+/* .modal-content {
+    background-color: #15202b;
+    color: #fff;
+    text-align: center;
+}
+.modal-body {
+    color: #8899a6;
+}
+.modal-header {
+    border: none;
+}
+.modal-footer {
+    border: none;
+} */

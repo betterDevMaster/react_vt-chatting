@@ -1,6 +1,11 @@
 import moment from 'moment'
 import React, {Component} from 'react'
 import ReactLoading from 'react-loading'
+import { JwModal } from '../dialog';
+import Profile from '../dialog/profile'
+// import { Button, Modal } from 'react-bootstrap';
+// import 'bootstrap/dist/css/bootstrap.min.css';
+
 import 'react-toastify/dist/ReactToastify.css'
 
 import {myFirestore, myStorage} from '../../Config/MyFirebase'
@@ -15,7 +20,8 @@ export default class ChatBoard extends Component {
         this.state = {
             isLoading: false,
             isShowSticker: false,
-            inputValue: ''
+            inputValue: '',
+            modalShow: false,
         }
         // this.currentUserId = localStorage.getItem(AppString.ID)
         // this.currentUserAvatar = localStorage.getItem(AppString.PHOTO_URL)
@@ -71,7 +77,8 @@ export default class ChatBoard extends Component {
         }
         this.listMessage.length = 0
         this.setState({isLoading: true})
-        console.log('goLstHistory ---------------', this.currentUserId, this.currentPeerUser)
+
+        // console.log('goLstHistory ---------------', this.currentUserId, this.currentPeerUser)
         if (
             this.hashString(this.currentUserId) <=
             this.hashString(this.currentPeerUser.id)
@@ -200,10 +207,6 @@ export default class ChatBoard extends Component {
         }
     }
 
-    onSetting = () => {
-
-    }
-
     onNext = () => {
 
     }
@@ -211,9 +214,38 @@ export default class ChatBoard extends Component {
     onExit = () => {
         console.log(this.props)
         this.props.params.history.push('/')
+        window.location.href = '/'
     }
 
     render() {
+        // const SettingModal = (props) => {
+        //     return (
+        //         <Modal
+        //             {...props}
+        //             size="md"
+        //             aria-labelledby="contained-modal-title-vcenter"
+        //             centered
+        //         >
+        //             <Modal.Header closeButton>
+        //                 <Modal.Title id="contained-modal-title-vcenter">
+        //                     User Setting
+        //                 </Modal.Title>
+        //             </Modal.Header>
+        //             <Modal.Body>
+        //                 <h4>Centered Modal</h4>
+        //                 <p>
+        //                     Cras mattis consectetur purus sit amet fermentum. Cras justo odio,
+        //                     dapibus ac facilisis in, egestas eget quam. Morbi leo risus, porta ac
+        //                     consectetur ac, vestibulum at eros.
+        //                 </p>
+        //             </Modal.Body>
+        //             <Modal.Footer>
+        //                 <Button onClick={props.onHide}>Close</Button>
+        //             </Modal.Footer>
+        //         </Modal>
+        //     )
+        // }
+
         return (
             <div className="viewChatBoard baseBoard">
                 {/* Header */}
@@ -224,7 +256,8 @@ export default class ChatBoard extends Component {
                     <div className='viewBottom'>
                         <button
                             className='control-btn'
-                            onClick={this.onSetting}
+                            onClick={JwModal.open('profile')} 
+                            // onClick={() => { this.setState({modalShow: !this.state.modalShow})}}
                         >
                             <SettingChat/>
                         </button>
@@ -241,6 +274,9 @@ export default class ChatBoard extends Component {
                             <ExitChat/>
                         </button>
                     </div>
+                    <JwModal id="profile">
+                        <Profile />
+                    </JwModal>
                 </div>
 
                 {/* List message */}
@@ -308,6 +344,14 @@ export default class ChatBoard extends Component {
                         />
                     </div>
                 ) : null}
+
+                {/* Modal  */}
+                {/* <SettingModal
+                    show={this.state.modalShow}
+                    onHide={() => { this.setState({modalShow: !this.state.modalShow})}}
+                /> */}
+
+                
             </div>
         )
     }

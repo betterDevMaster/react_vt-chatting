@@ -43,7 +43,8 @@
     padding-right: 0px;
     padding-top: 0px;
     position: relative;
-    z-index: 0;
+    z-index: 10;
+    background-color: #15202b;
 }
 
 .r-1xnzce8 {

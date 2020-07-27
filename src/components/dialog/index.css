@@ -1,0 +1,174 @@
+/* MODAL STYLES
+-------------------------------*/
+/* modal container fixed across whole screen */
+.jw-modal {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1000;
+}
+.jw-modal .jw-modal-body {
+    padding: 20px;
+    background: #fff;
+    max-width: 800px;
+    margin: auto;
+    transform: translate(0, 50%);
+    border: 1px solid #ccc;
+    background: #fff;
+    overflow: auto;
+    border-radius: 4px;
+    outline: none;
+}
+
+.jw-modal-background {
+    /* modal background fixed across whole screen */
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+
+    background-color: #000;
+    opacity: 0.75;
+    z-index: 900;
+}
+
+body.jw-modal-open {
+    /* body overflow is hidden to hide main scrollbar when modal window is open */
+    overflow: hidden;
+}
+
+
+.modalContent.noBackground {
+    padding-top: 40px;
+}
+
+.modalContent {
+    top: 20%;
+    padding: 0px 10px 30px 10px;
+    border-radius: 10px;
+    max-width: 400px;
+    background-color: #15202b;
+    color: #fff;
+    margin: 0 auto;
+    position: relative;
+}
+
+.viewRoot {
+    flex-direction: column;
+    width: 100%;
+    text-align: center;
+    flex: 1 1 auto;
+    padding: 0px;
+}
+
+.viewLoading {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: rgba(255, 255, 255, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.header {
+    font-weight: bold;
+    font-size: 20px;
+    color: #203152;
+    background-color: #f5a623;
+    padding: 20px;
+    box-shadow: 0px 4px 4px #808888;
+}
+
+.avatarPanel {
+    display: inline-block;
+    margin-bottom: 10px;
+}
+
+.avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 60px;
+    align-self: center;
+    object-fit: cover;
+}
+
+.textLabel {
+    font-weight: bold;
+    color: #203152;
+    font-style: italic;
+    font-size: 18px;
+    margin-top: 50px;
+    margin-left: -400px;
+}
+
+.textInput {
+    width: 80%;
+    border: none;
+    background-color: #203152;
+    border-radius: 10px;
+    height: 50px;
+    padding: 10px 20px;
+    color: white;
+    margin-top: 10px;
+    outline: none;
+}
+
+input::placeholder {
+    color: rgb(199, 199, 199);
+}
+
+.btnUpdate {
+    background-color: rgb(29, 161, 242);
+    border: none;
+    color: #ffffff;
+    padding: 10px;
+    text-align: center;
+    font: 20px Arial;
+    -webkit-align-self: center;
+    align-self: center;
+    border-radius: 10px;
+    font-weight: bold;
+    margin-top: 20px;
+    cursor: pointer;
+}
+
+.viewWrapInputFile {
+    position: absolute;
+    top: 180px;
+    left: 180px;
+    background-color: rgba(1, 1, 1, 0.5);
+    width: 40px;
+    height: 40px;
+    border-radius: 20px;
+}
+
+.viewInputFile {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    left: 0px;
+    outline: 0;
+    z-index: -1;
+    opacity: 0;
+}
+
+.imgInputFile {
+    border: none;
+    width: 40px;
+    height: 40px;
+    padding: 5px;
+}
+
+.genderRadio {
+    margin-top: 10px;
+}
+
+.genderRadio label {
+    margin: 0 20px 0 10px;
+}

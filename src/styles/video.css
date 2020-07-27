@@ -27,7 +27,7 @@
 .control-btn{
   position: relative;
   background: transparent;
-  outline: none;
   border: none;
   cursor: pointer;
+  outline: none !important;
 }
