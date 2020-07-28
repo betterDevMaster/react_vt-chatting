@@ -540,6 +540,7 @@
 
 .two > section > div > div form label > input,.two > section > div > div form label > i {
 	color: #636363;
+	background-color: rgb(232, 240, 254) ;
 }
 
 .two > section > div > div form label > input {
@@ -548,6 +549,11 @@
 
 .two > section > div > div form label > i {
 	font-size: 14px;
+}
+
+.two > section > div > div form .gender {
+	display: flex;
+	justify-content: space-around;
 }
 
 .two > section > div > div form .submit {

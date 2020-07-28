@@ -150,7 +150,7 @@ class VideoPanel extends React.Component {
   render() {
     return (
       <div className="baseBoard r-18bvks7 r-1ljd8xs r-13l2t4g r-1phboty r-13awgt0 r-1jgb5lz r-1ye8kvj r-1udh08x r-13qz1uu">
-        <div className="headerChatBoard">
+        <div className="headerChatBoard dashLine">
           <h2 aria-level="2" dir="ltr" className="css-4rbku5 css-901oao css-bfa6kz r-jwli3a r-1qd0xha r-1vr29t4 r-bcqeeo" id="root-header">
             <span className="css-901oao css-16my406 r-1qd0xha r-ad9z0x r-bcqeeo r-qvutc0">Videos</span>
           </h2>

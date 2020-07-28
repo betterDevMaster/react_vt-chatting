@@ -19,7 +19,6 @@ io.on('connection', function (socket) {
                 socket.leave(data.roomId)
                 socket.emit('full')
             }
-            
         }
     });
     socket.on('signal', (data) => {

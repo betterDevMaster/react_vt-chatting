@@ -15,7 +15,7 @@
         $cloud3 = $("#cloud3");
         mainwidth = $main.outerWidth();
         
-        setInterval(function flutter() {
+        var flutter = setInterval(function flutter() {
             if (offset1 >= mainwidth) {
                 offset1 =  -580;
             }
@@ -37,7 +37,7 @@
         }, 70);
         
         
-        setInterval(function bg() {
+        var bg = setInterval(function bg() {
             if (offsetbg >= mainwidth) {
                 offsetbg =  -180;
             }
@@ -45,6 +45,13 @@
             offsetbg += 0.9;
             $body.css("background-position", -offsetbg + "px 0")
         }, 90 );
+
+        var main = document.getElementsByTagName("main");
+
+        if (main.length > 0) {
+            clearInterval(flutter);
+            clearInterval(bg);
+        }
     });
     
 	

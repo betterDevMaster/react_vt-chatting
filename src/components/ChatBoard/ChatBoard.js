@@ -42,7 +42,6 @@ export default class ChatBoard extends Component {
         this.currentUserAvatar = 'https://lh3.googleusercontent.com/a-/AOh14Gj9aTszYfNNUCjlC8fxxaSYi3bR_7PUTxtwUC60' 
         this.currentUseramp = 'john cuesta'
 
-        console.log('chatboard--------', this.currentPeerUser)
         // this.currentPeerUser = this.props.currentPeerUser
         this.groupChatId = null
         this.removeListener = null

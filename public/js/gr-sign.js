@@ -1,6 +1,5 @@
 $(document).ready(function() {
     $('.sign > section > div > div form > .switch span').on('click', function() {
-        console.log('gr-sign click')
         $('body').hide();
         var btn = $('.two > section > div > div form .submit.global').text();
         $('.two > section > div > div form .submit.global').text($('.two > section > div > div form .submit.global').attr('btn'));
@@ -86,6 +85,27 @@ $(document).ready(function() {
         $('.gr-consent').fadeOut();
     });
     $('.two > section > div > div form .submit.global').on('click', function(e) {
+        var doer = 1;
+        $("form").find('input').each(function() {
+            if(!$(this).val() && $(this).is(":visible") && !$(this).hasClass("notreq")) {
+                doer = 0;
+                if($(this).hasClass('gstdep') && !$('.sign > section > div > div form > .switch').hasClass('log')) {
+                    if($('.two > section > div > div form .submit.global').attr('glog') == 'enable') {
+                        doer = 1;
+                    }
+                }
+            }
+        });
+        if(doer === 1) {
+            var s = 'eval(data);';
+            $(this).attr('load', $(".dumb > .loading").text());
+            $(this).attr('lsub', $(".dumb > .pleasewait").text());
+            // ajxx($(this), '', s, 0, e);
+        } else {
+            say($('.two > section > div > div form .submit.global').attr('em'));
+        }
+    });
+    $('.two > section > div > div form .submit.reset').on('click', function(e) {
         var doer = 1;
         $("form").find('input').each(function() {
             if(!$(this).val() && $(this).is(":visible") && !$(this).hasClass("notreq")) {

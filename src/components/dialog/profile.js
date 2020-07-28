@@ -188,11 +188,11 @@ class Profile extends Component {
                 <div className="genderRadio">
                     {/* <div> */}
                         <input type="radio" id="gender" name="gender" value="1" />
-                        <label for="male">Male</label>
+                        <label htmlFor="male">Male</label>
                     {/* </div>
                     <div> */}
                         <input type="radio" id="gender" name="gender" value="2" />
-                        <label for="female">Female</label>
+                        <label htmlFor="female">Female</label>
                     {/* </div> */}
                 </div>
                 <input

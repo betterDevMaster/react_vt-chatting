@@ -1,7 +1,6 @@
 /* Chat board */
 .viewChatBoard {
-    width: 100%;
-    max-width: 600px;
+    width: 70%;
     border-right: 1px solid #38444d;
 }
 
@@ -10,7 +9,7 @@
 }
 
 .headerChatBoard {
-    padding: 5px;
+    padding: 5px 15px;
     display: -webkit-flex;
     display: flex;
     -webkit-align-items: center;
@@ -19,7 +18,7 @@
     justify-content: space-between;
     -webkit-flex-direction: row;
     flex-direction: row;
-    border-bottom: 1px solid #38444d;
+    /* border-bottom: 1px solid #38444d; */
 }
 
 .textHeaderChatBoard {
@@ -44,6 +43,7 @@
     padding-top: 10px;
     padding-bottom: 20px;
     border-bottom: 1px solid #38444d;
+    border-top: 1px solid #38444d;
 }
 
 .viewListContentChat::-webkit-scrollbar-track {
@@ -121,7 +121,7 @@ input::placeholder {
 
 .viewItemRight {
     height: auto;
-    max-width: 400px;
+    max-width: 600px;
     -webkit-align-self: flex-end;
     align-self: flex-end;
     margin-right: 20px;
@@ -134,7 +134,7 @@ input::placeholder {
 }
 
 .viewItemRight2 {
-    max-width: 400px;
+    max-width: 500px;
     height: auto;
     align-self: flex-end;
     margin-right: 20px;
@@ -144,7 +144,7 @@ input::placeholder {
 }
 
 .viewItemRight3 {
-    max-width: 400px;
+    max-width: 340px;
     height: auto;
     align-self: flex-end;
     margin-right: 20px;
@@ -154,14 +154,14 @@ input::placeholder {
 }
 
 .viewWrapItemLeft {
-    max-width: 400px;
+    max-width: 600px;
     text-align: left;
     align-self: flex-start;
     margin: 10px 0 -15px 20px;
 }
 
 .viewWrapItemLeft2 {
-    max-width: 400px;
+    max-width: 500px;
     align-self: flex-start;
     text-align: left;
     margin: 10px 0 -15px 20px;
@@ -176,7 +176,7 @@ input::placeholder {
 
 .viewItemLeft {
     height: auto;
-    max-width: 400px;
+    max-width: 600px;
     align-self: flex-start;
     margin-left: 20px;
     margin-top: 10px;
@@ -188,7 +188,7 @@ input::placeholder {
 }
 
 .viewItemLeft2 {
-    max-width: 400px;
+    max-width: 500px;
     height: auto;
     align-self: flex-start;
     margin-left: 20px;
@@ -198,7 +198,7 @@ input::placeholder {
 }
 
 .viewItemLeft3 {
-    max-width: 400px;
+    max-width: 340px;
     height: auto;
     align-self: flex-start;
     margin-left: 20px;
@@ -237,14 +237,14 @@ input::placeholder {
 /* Item image */
 
 .imgItemRight {
-    max-width: 400px;
-    height: 180px;
+    max-width: 500px;
+    height: 280px;
     border-radius: 20px;
 }
 
 .imgItemLeft {
-    max-width: 400px;
-    height: 180px;
+    max-width: 500px;
+    height: 280px;
     border-radius: 20px;
 }
 

@@ -47,6 +47,9 @@
     background-color: #15202b;
 }
 
+.dashLine {
+    border-bottom: 1px solid #38444d;
+}
 .r-1xnzce8 {
     user-select: text;
 }
@@ -84,10 +87,11 @@
     flex-basis: 0%;
     flex-grow: 1;
     flex-shrink: 1;
+    /* position: relative; */
 }
 
 .r-1ye8kvj {
-    max-width: 600px;
+    width: 100%;
 }
 .r-13l2t4g {
     border-right-width: 1px;
@@ -96,11 +100,11 @@
     border-left-width: 1px;
 }
 .r-13qz1uu {
-    width: 100%;
+    width: 30%;
 }
 .r-1jgb5lz {
-    margin-left: auto;
-    margin-right: auto;
+    /* margin-left: auto;
+    margin-right: auto; */
 }
 .r-1udh08x {
     overflow-x: hidden;
@@ -120,7 +124,7 @@
 }
 
 .r-rthrr5 {
-    width: 990px;
+    width: 100%;
     margin: 0 auto;
 }
 
@@ -281,6 +285,7 @@
     overflow-y: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    margin-left: 1rem;
 }
 
 .r-eljoum {

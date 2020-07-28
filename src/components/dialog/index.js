@@ -31,13 +31,11 @@ class JwModal extends React.Component {
         super(props);
 
         this.state = { isOpen: false };
-        console.log('JwModal----------', this.props, this.state)
         this.handleClick = this.handleClick.bind(this);
     }
 
     componentDidMount() {
         // move element to bottom of page (just before </body>) so it can be displayed above everything else
-        console.log('element-------', this.element)
         document.body.appendChild(this.element);
 
         // add this modal instance to the modal service so it's accessible from other components
