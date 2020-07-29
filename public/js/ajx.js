@@ -93,8 +93,6 @@ function ajx(e, d, s, f, av, rav, atl) {
 }
 
 function ajxx(e, d, s, na, f, av, rav, atl) {
-	console.log('error------------', e)
-
 	if(!$(na.target).hasClass("na") && !e.hasClass("na")) {
 		var url = e.attr("url"),
 			out = e.attr("out"),
@@ -161,6 +159,7 @@ function ajxx(e, d, s, na, f, av, rav, atl) {
 		}
 
 		function ajxpr() {
+
 			if(spin !== "off") {
 				$('.ajxprocess').append("<div class='" + vr + "'><div class='ajx-ripple'><div></div><div></div></div><span>" + load + "<span>" + lsub + "</span></span></div>");
 			}

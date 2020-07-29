@@ -1,6 +1,7 @@
 declare namespace NodeJS {
   interface ProcessEnv {
     REACT_APP_SIGNALING_SERVER: string
+    REACT_APP_SERVER_API: string
     REACT_APP_STUN_SERVERS: string
     REACT_APP_TURN_SERVERS: string
     REACT_APP_TURN_USERNAME: string

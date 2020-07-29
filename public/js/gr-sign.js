@@ -7,14 +7,17 @@ $(document).ready(function() {
         $('.sign > section > div > div form .global').removeClass('d-none');
         $('.two > section > div > div form .submit.reset').addClass('d-none');
         if($(this).hasClass('log')) {
+            console.log('switch account login')
+
             $('.two > section > div > div > .box .swithlogin > ul > li').eq(0).trigger('click');
             $('.two > section > div > div form .submit.global').attr('do', 'login');
             $('.two > section > div > div form .doz').val('login');
             $('.sign > section > div > div form .register,.sign .regsep').addClass('d-none');
-            $('.sign > section > div > div form .login,.swithlogin').removeClass('d-none');
-            $('.sign > section > div > div form > .sub').removeClass('d-none');
+            $('.sign > section > div > div form .loginasguest,.swithlogin').removeClass('d-none');
+            // $('.sign > section > div > div form > .sub').removeClass('d-none');
             $(this).removeClass('log');
         } else {
+            console.log('switch account create')
             $('.two > section > div > div form .submit.global').attr('do', 'register');
             $('.two > section > div > div form .doz').val('register');
             $('.sign > section > div > div form .login,.swithlogin').addClass('d-none');
@@ -37,13 +40,13 @@ $(document).ready(function() {
         $('.two > section > div > div > .box .swithlogin > ul > li').removeClass('active');
         $(this).addClass('active');
         if($(this).hasClass('lag')) {
-            $('.sign > section > div > div form .login,.two > section > div > div > .box .elements .global').addClass('d-none');
-            $('.sign > section > div > div form > .sub').addClass('d-none');
-            $('.sign > section > div > div form .loginasguest').removeClass('d-none');
-        } else {
             $('.sign > section > div > div form .loginasguest').addClass('d-none');
             $('.sign > section > div > div form > .sub').removeClass('d-none');
             $('.sign > section > div > div form .login,.two > section > div > div > .box .elements .global').removeClass('d-none');
+        } else {
+            $('.sign > section > div > div form .login,.two > section > div > div > .box .elements .global').addClass('d-none');
+            $('.sign > section > div > div form > .sub').addClass('d-none');
+            $('.sign > section > div > div form .loginasguest').removeClass('d-none');
         }
         $('body').fadeIn();
     });

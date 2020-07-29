@@ -29,10 +29,10 @@ class VideoPanel extends React.Component {
     const component = this;
     this.setState({ socket });
     const { roomId } = this.props.params;
+    
     this.getUserMedia().then(() => {
       socket.emit('join', { roomId: roomId });
     });
-
     socket.on('init', () => {
       component.setState({ initiator: true });
     });
@@ -45,6 +45,7 @@ class VideoPanel extends React.Component {
       component.call(data);
     });
     socket.on('disconnected', () => {
+      console.log('disconnected: -----------', this.state.initiator)
       component.setState({ initiator: true });
     });
     socket.on('full', () => {
@@ -71,6 +72,9 @@ class VideoPanel extends React.Component {
         stream => {
           this.setState({ streamUrl: stream, localStream: stream });
           this.localVideo.srcObject = stream;
+
+          this.setAudioLocal()
+          this.setVideoLocal()
           resolve();
         },
         () => {}

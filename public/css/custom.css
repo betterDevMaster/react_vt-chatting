@@ -515,7 +515,7 @@
 }
 
 .two > section > div > div .logo {
-    background: linear-gradient(to right,#000000,#000000);
+	background: linear-gradient(to bottom,#4daadf,#337ec2);
     text-align: center;
     font-size: 20px;
     color: #fff;
@@ -554,13 +554,26 @@
 .two > section > div > div form .gender {
 	display: flex;
 	justify-content: space-around;
+	margin-bottom: 10px;
+}
+
+.two > section > div > div form .gender div span {
+	margin-left: 5px;
 }
 
 .two > section > div > div form .submit {
 	background: linear-gradient(to right,#E91E63,#9C27B0);
 }
 
+.two > section > div > div form .submit:hover {
+	background: linear-gradient(to right,#b54b6f,#7c2b8a);
+}
+
 .two > section > div > div form .submit {
+	color: #FFFFFF;
+}
+
+.two > section > div > div form .submit:hover {
 	color: #FFFFFF;
 }
 
@@ -581,11 +594,11 @@
 }
 
 .two > section > div > div form > .switch > span {
-	background: linear-gradient(to right,#000000,#000000);
+	background: linear-gradient(to bottom,#56abdb,#4184c1)
 }
 
 .two > section > div > div form > .switch > span:hover {
-	background: linear-gradient(to right,#000000,#000000);
+	background: linear-gradient(to bottom,#56abdb,#075ca9)
 }
 
 .two > section > div > div form > .switch > span:hover {
