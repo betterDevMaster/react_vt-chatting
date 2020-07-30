@@ -59,9 +59,16 @@ io.on('connection', function (socket) {
         if (socket.room){
             io.to(socket.room).emit('disconnected')
         }
-        
     })
+    socket.on('newChatMessage', data => {
+        io.to(data.roomId).emit('newChatMessage', { text: data.message, type: data.type, sender: socket.id });
+    });
+    socket.on('typing', data => {
+        // must use socket instead of io to boradcast event to other sockets, not whole room
+        socket.to(data.roomId).emit('typing', { typing: data.typing, sender: socket.id });
+    });
 });
+
 
 // Database Management
 class Global {
@@ -192,6 +199,8 @@ class Sqlite {
 
                         try{
                             roomid = await updateUserInfoWithRoomid(_DB, nickname, roomid)
+                            row.roomid = roomid
+                            row.nickname = nickname
                         } catch(e){
                             Debug.err(e.message, e.user)
                             return null;
@@ -236,13 +245,14 @@ class Sqlite {
 
                         try{
                             roomid = await updateUserInfoWithRoomid(_DB, row.nickname, roomid)
+                            row.roomid = roomid
                         } catch(e){
                             Debug.err(e.message, e.user)
                             return null;
                         }
                     }
 
-                    return res.send({status: 1, message: "Login succeed with email & password!", nickname: row.nickname, roomid: roomid})
+                    return res.send({status: 1, message: "Login succeed with email & password!", nickname: row.nickname, roomid: row.roomid})
                 }
             }
         );
@@ -310,13 +320,14 @@ function getSignUserDataWithFullnameAndPassword(_DB, emailOruser, password, res)
 
                     try{
                         roomid = await updateUserInfoWithRoomid(_DB, row1.nickname, roomid)
+                        row1.roomid = roomid
                     } catch(e){
                         Debug.err(e.message, e.user)
                         return null;
                     }
                 }
                 
-                return res.send({status: 1, message: "Login succeed with fullname & password!", nickname: row1.nickname, roomid: roomid})
+                return res.send({status: 1, message: "Login succeed with fullname & password!", nickname: row1.nickname, roomid: row1.roomid})
             }
         }
     );

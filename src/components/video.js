@@ -1,11 +1,12 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import VideoCall from '../helpers/simple-peer';
-import '../styles/video.css';
 import io from 'socket.io-client';
 import { getDisplayStream } from '../helpers/media-access';
-import {ShareScreenIcon,MicOnIcon,MicOffIcon,CamOnIcon,CamOffIcon} from './Icons';
+import { ShareScreenIcon,MicOnIcon,MicOffIcon,CamOnIcon,CamOffIcon } from './Icons';
 
-class Video extends React.Component {
+import '../styles/dashboard.css'
+
+class VideoPanel extends React.Component {
   constructor() {
     super();
     this.state = {
@@ -27,11 +28,11 @@ class Video extends React.Component {
     const socket = io(process.env.REACT_APP_SIGNALING_SERVER);
     const component = this;
     this.setState({ socket });
-    const { roomId } = this.props.match.params;
+    const { roomId } = this.props.params;
+    console.log('this.props.params', this.props.params)
     this.getUserMedia().then(() => {
       socket.emit('join', { roomId: roomId });
     });
-
     socket.on('init', () => {
       component.setState({ initiator: true });
     });
@@ -45,11 +46,13 @@ class Video extends React.Component {
     });
     socket.on('disconnected', () => {
       component.setState({ initiator: true });
+      document.getElementById('remoteVideo').style.display = 'none'
     });
     socket.on('full', () => {
       component.setState({ full: true });
     });
   }
+
 
   getUserMedia(cb) {
     return new Promise((resolve, reject) => {
@@ -69,6 +72,9 @@ class Video extends React.Component {
         stream => {
           this.setState({ streamUrl: stream, localStream: stream });
           this.localVideo.srcObject = stream;
+
+          this.setAudioLocal()
+          this.setVideoLocal()
           resolve();
         },
         () => {}
@@ -98,19 +104,19 @@ class Video extends React.Component {
     })
   }
 
-  getDisplay() {
-    getDisplayStream().then(stream => {
-      stream.oninactive = () => {
-        this.state.peer.removeStream(this.state.localStream);
-        this.getUserMedia().then(() => {
-          this.state.peer.addStream(this.state.localStream);
-        });
-      };
-      this.setState({ streamUrl: stream, localStream: stream });
-      this.localVideo.srcObject = stream;
-      this.state.peer.addStream(stream);
-    });
-  }
+  // getDisplay() {
+  //   getDisplayStream().then(stream => {
+  //     stream.oninactive = () => {
+  //       this.state.peer.removeStream(this.state.localStream);
+  //       this.getUserMedia().then(() => {
+  //         this.state.peer.addStream(this.state.localStream);
+  //       });
+  //     };
+  //     this.setState({ streamUrl: stream, localStream: stream });
+  //     this.localVideo.srcObject = stream;
+  //     this.state.peer.addStream(stream);
+  //   });
+  // }
 
   enter = roomId => {
     this.setState({ connecting: true });
@@ -120,6 +126,7 @@ class Video extends React.Component {
     );
     this.setState({ peer });
 
+    document.getElementById('remoteVideo').style.display = 'block'
     peer.on('signal', data => {
       const signal = {
         room: roomId,
@@ -144,84 +151,124 @@ class Video extends React.Component {
       return 'The room is full';
     }
   };
+
   render() {
     return (
-      <div className='video-wrapper'>
-        <div className='local-video-wrapper'>
-          <video
-            autoPlay
-            id='localVideo'
-            muted
-            ref={video => (this.localVideo = video)}
-          />
-        </div>
-        <video
-          autoPlay
-          className={`${
-            this.state.connecting || this.state.waiting ? 'hide' : ''
-          }`}
-          id='remoteVideo'
-          ref={video => (this.remoteVideo = video)}
-        />
-
-        <div className='controls'>
-          <button
-            className='control-btn'
-            onClick={() => {
-              this.getDisplay();
-            }}
-          >
-            <ShareScreenIcon />
-          </button>
-
-
-          <button
-          className='control-btn'
-            onClick={() => {
-              this.setAudioLocal();
-            }}
-          >
-            {
-              this.state.micState?(
-                <MicOnIcon/>
-              ):(
-                <MicOffIcon/>
-              )
-            }
-          </button>
-
-          <button
-          className='control-btn'
-            onClick={() => {
-              this.setVideoLocal();
-            }}
-          >
-            {
-              this.state.camState?(
-                <CamOnIcon/>
-              ):(
-                <CamOffIcon/>
-              )
-            }
-          </button>
-        </div>
-        
-
-
-        {this.state.connecting && (
-          <div className='status'>
-            <p>Establishing connection...</p>
+      <div className="baseBoard r-18bvks7 r-1ljd8xs r-13l2t4g r-1phboty r-13awgt0 r-1jgb5lz r-1ye8kvj r-1udh08x r-13qz1uu">
+        <div className="headerChatBoard dashLine">
+          <h2 aria-level="2" dir="ltr" className="css-4rbku5 css-901oao css-bfa6kz r-jwli3a r-1qd0xha r-1vr29t4 r-bcqeeo" id="root-header">
+            <span className="css-901oao css-16my406 r-1qd0xha r-ad9z0x r-bcqeeo r-qvutc0">Videos</span>
+          </h2>
+          <div className='viewBottom'>
+            {/* <button
+              className='control-btn'
+              onClick={() => {
+                this.getDisplay();
+              }}
+            >
+              <ShareScreenIcon />
+            </button> */}
+            <button
+              className='control-btn'
+              onClick={() => {
+                this.setAudioLocal();
+              }}
+            >
+              {
+                this.state.micState?(
+                  <MicOnIcon/>
+                ):(
+                  <MicOffIcon/>
+                )
+              }
+            </button>
+            <button
+              className='control-btn'
+              onClick={() => {
+                this.setVideoLocal();
+              }}
+            >
+              {
+                this.state.camState?(
+                  <CamOnIcon/>
+                ):(
+                  <CamOffIcon/>
+                )
+              }
+            </button>
           </div>
-        )}
-        {this.state.waiting && (
-          <div className='status'>
-            <p>Waiting for someone...</p>
+        </div>
+        <div className="baseBoard r-1pz39u2 r-13awgt0">
+          <div className='video-wrapper'>
+            <div className='local-video-wrapper'>
+              <div className="headerChatBoard avatarBoard">
+                  <img
+                    className="viewAvatarItem"
+                    src="https://abs.twimg.com/sticky/default_profile_images/default_profile_bigger.png"
+                    alt="icon avatar"
+                  />
+                  <div className="baseBoard">
+                    <span className="textHeaderChatBoard">
+                      John
+                    </span>
+                    <span className="textHeaderChatBoard">
+                      Male 33 Colombia
+                    </span>
+                  </div>
+              </div>
+              <video
+                autoPlay
+                id='localVideo'
+                muted
+                ref={video => (this.localVideo = video)}
+              />
+            </div>
+
+
+            <div id='remoteVideo' className={`${
+                this.state.connecting || this.state.waiting ? 'hide' : ''
+              }`}  >
+              <div className="headerChatBoard avatarBoard">
+                  <img
+                    className="viewAvatarItem"
+                    src="https://abs.twimg.com/sticky/default_profile_images/default_profile_bigger.png"
+                    alt="icon avatar"
+                  />
+                  <div className="baseBoard">
+                    <span className="textHeaderChatBoard">
+                      John
+                    </span>
+                    <span className="textHeaderChatBoard">
+                      Male 33 Colombia
+                    </span>
+                  </div>
+              </div>
+              <video
+                autoPlay
+                className={`${
+                  this.state.connecting || this.state.waiting ? 'hide' : ''
+                }`}
+                id='remoteVideo'
+                ref={video => (this.remoteVideo = video)}
+              />
+            </div>
+
+            {this.state.connecting && (
+              <div className='status'>
+                <p>Establishing connection...</p>
+              </div>
+            )}
+            {this.state.waiting && !this.state.connecting && (
+              <div className='status'>
+                <p>Waiting for someone...</p>
+              </div>
+            )}
+            {this.renderFull()}
           </div>
-        )}
-        {this.renderFull()}
+        </div>
       </div>
-    );
+    )
   }
 }
 
-export default Video;
+export default VideoPanel;

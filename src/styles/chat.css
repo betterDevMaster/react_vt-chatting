@@ -1,0 +1,225 @@
+
+.chat-wrapper {
+  transition: .2s cubic-bezier(.4,0,.2,1);
+  padding-left: 300px;
+  align-items: stretch;
+  max-width: 100%;
+  height: 100%;
+  display: flex;
+  flex-basis: auto;
+  flex-direction: column;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.chat-content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  overflow-y: scroll;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #38444d;
+  border-top: 1px solid #38444d;
+}
+
+.chat-content::-webkit-scrollbar-track {
+  padding: 2px 0;
+}
+
+.chat-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.chat-content::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+  background-color: #e8e8e8;
+}
+.chat-content div:last-child {
+  /* margin: 10px 0 10px 0; */
+}
+
+.chat-bottom {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  height: 50px;
+  padding: 0 20px;
+}
+.chat-bottom-gallery {
+  opacity: 0;
+  position: absolute;
+  z-index: -1;
+  left: 10px;
+  width: 30px;
+}
+.chat-bottom-input {
+  -webkit-flex: 1 1;
+  flex: 1 1;
+  padding-left: 20px;
+  padding-right: 40px;
+  border: 1px solid #1da1f2;
+  border-radius: 20px;
+  background: transparent;
+  color: #fff;
+  height: 36px;
+  margin: 1px 6px 5px 6px;
+  outline: none;
+  user-select: text;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+}
+
+/* Stickers */
+
+.viewStickers {
+  display: flex;
+  height: 100px;
+  width: 100%;
+  align-items: center;
+  justify-content: flex-start;
+  overflow-y: scroll;
+}
+
+.viewStickers::-webkit-scrollbar-track {
+  padding: 2px 0;
+}
+
+.viewStickers::-webkit-scrollbar {
+  height: 6px;
+}
+
+.viewStickers::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+  background-color: #e8e8e8;
+}
+
+.imgSticker {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+}
+
+
+.messages {
+  height: 100%;
+  border-bottom: 1px solid #38444d;
+  overflow: hidden;
+}
+
+.css-y1c0xs {
+  padding: 15px;
+}
+
+.css-y1c0xs::-webkit-scrollbar-track {
+  padding: 2px 0;
+}
+
+.css-y1c0xs::-webkit-scrollbar {  
+  width: 10px;
+  height: 20px;
+}
+
+.css-y1c0xs::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.3);
+  background-color: #e8e8e8;
+}
+
+.message {
+  border-radius: 5px;
+  padding: 5px;
+  margin: 2px;
+}
+
+.my-message {
+  height: auto;
+  max-width: 600px;
+  width: fit-content;
+  -webkit-align-self: flex-end;
+  align-self: flex-end;
+  margin-top: 10px;
+  margin-left: 2px;
+  margin-right: auto;
+  border-radius: 12px 12px 12px 0px;
+  padding: 10px 10px;
+  text-align: left;
+  text-overflow: ellipsis;
+  word-break: break-word;
+  white-space: break-spaces;
+  word-spacing: normal;
+  color: #ffffff;
+  background-color: rgb(29, 161, 242);
+}
+
+.my-message-gif {
+  text-align: left;
+  width: 15rem;
+  display: block;
+  margin-top: 10px;
+  margin-right: auto;
+}
+
+.my-message-image {
+  text-align: left;
+  width: 20rem;
+  display: block;
+  border-radius: 20px;
+  margin-top: 10px;
+  margin-right: auto;
+}
+
+.their-message {
+  height: auto;
+  max-width: 600px;
+  width: fit-content;
+  align-self: flex-end;
+  margin-top: 10px;
+  margin-left: auto;
+  margin-right: 2px;
+  border-radius: 12px 12px 0px 12px;
+  padding: 10px 10px;
+  text-align: left;
+  text-overflow: ellipsis;
+  word-break: break-word;
+  white-space: break-spaces;
+  word-spacing: normal;
+  color: #ffffff;
+  background-color: #34713dd4;
+}
+
+.their-message-gif {
+  text-align: left;
+  width: 15rem;
+  display: block;
+  margin-top: 10px;
+  margin-left: auto;
+}
+
+.their-message-image {
+  text-align: left;
+  width: 20rem;
+  border-radius: 20px;
+  display: block;
+  margin-top: 10px;
+  margin-left: auto;
+}
+
+.partnerTyping {
+  color: black;
+  width: 20%;
+  margin-left: auto;
+  margin-right: 2px;
+}
+
+.partnerTyping:after {
+  overflow: hidden;
+  display: inline-block;
+  vertical-align: bottom;
+  -webkit-animation: ellipsis steps(4,end) 900ms infinite;      
+  animation: ellipsis steps(4,end) 900ms infinite;
+  content: "\2026"; /* ascii code for the ellipsis character */
+  width: 0px;
+}

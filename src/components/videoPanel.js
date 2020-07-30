@@ -1,180 +1,187 @@
 import React, { useState, useEffect, useRef } from 'react';
 import VideoCall from '../helpers/simple-peer';
+import '../styles/dashboard.css';
 import io from 'socket.io-client';
-import { getDisplayStream } from '../helpers/media-access';
-import { ShareScreenIcon,MicOnIcon,MicOffIcon,CamOnIcon,CamOffIcon } from './Icons';
+import Chat from './CustomChat';
+import { MicOnIcon,MicOffIcon,CamOnIcon,CamOffIcon } from './Icons';
+  
+const VideoPanel  = ({ params }) => {
+  // use refs for these vars so they exist outside of state
+  // we initialise socket listeners on render, and the closure means stale state is referenced.
+  // See https://stackoverflow.com/questions/54675523/state-inside-useeffect-refers-the-initial-state-always-with-react-hooks
+  
+  const peer = useRef({});
+  const localStream = useRef({});
+  const localVideo = useRef();
+  const remoteVideo = useRef();
+  const [micState, setMicState] = useState(true)
+  const [camState, setCamState] = useState(true)
+  // this MUST be true for peer to signal
+  const initiator = useRef(false);
+  const [full, setFull] = useState(false)
+  const [connecting, setConnecting] = useState(false)
+  const [waiting, setWaiting] = useState(true)
+  const [messages, setMessages] = useState([])
+  const [partnerTyping, setPartnerTyping] = useState(false)
 
-import '../styles/dashboard.css'
+  const [socket, setSocket] = useState(io(process.env.REACT_APP_SIGNALING_SERVER))
+  const [roomId, setRoomId] = useState(params);
 
-class VideoPanel extends React.Component {
-  constructor() {
-    super();
-    this.state = {
-      localStream: {},
-      remoteStreamUrl: '',
-      streamUrl: '',
-      initiator: false,
-      peer: {},
-      full: false,
-      connecting: false,
-      waiting: true,
-      micState:true,
-      camState:true,
-    };
-  }
-  videoCall = new VideoCall();
+  const videoCall = new VideoCall();
 
-  componentDidMount() {
-    const socket = io(process.env.REACT_APP_SIGNALING_SERVER);
-    const component = this;
-    this.setState({ socket });
-    const { roomId } = this.props.params;
-    
-    this.getUserMedia().then(() => {
+  localStorage.setItem('name', 'John')
+  localStorage.setItem('gender', 'male')
+  localStorage.setItem('age', 33)
+  localStorage.setItem('country', 'Colombia')
+
+  // component did mount
+  useEffect(() => {
+    getUserMedia().then(() => {
       socket.emit('join', { roomId: roomId });
     });
+
     socket.on('init', () => {
-      component.setState({ initiator: true });
+      initiator.current = true;
     });
+
     socket.on('ready', () => {
-      component.enter(roomId);
+      enter(roomId);
     });
+
     socket.on('desc', data => {
-      if (data.type === 'offer' && component.state.initiator) return;
-      if (data.type === 'answer' && !component.state.initiator) return;
-      component.call(data);
+      if (data.type === 'offer' && initiator.current) return;
+      if (data.type === 'answer' && !initiator.current) return;
+      call(data);
     });
+
     socket.on('disconnected', () => {
-      console.log('disconnected: -----------', this.state.initiator)
-      component.setState({ initiator: true });
+      initiator.current = true;
     });
+
     socket.on('full', () => {
-      component.setState({ full: true });
+      setFull(true);
     });
-  }
+
+    socket.on('newChatMessage',
+      (message) => {
+        setMessages(prev => prev.concat(message));
+      }
+    );
+
+    socket.on('typing',
+      ({ typing }) => {
+        setPartnerTyping(typing)
+      }
+    );
+  }, [])
 
 
-  getUserMedia(cb) {
-    return new Promise((resolve, reject) => {
-      navigator.getUserMedia = navigator.getUserMedia =
-        navigator.getUserMedia ||
-        navigator.webkitGetUserMedia ||
-        navigator.mozGetUserMedia;
+  const getUserMedia = () => new Promise((resolve, reject) => {
+      navigator.mediaDevices.getUserMedia = ( navigator.mediaDevices.getUserMedia ||
+                        navigator.mediaDevices.webkitGetUserMedia ||
+                        navigator.mediaDevices.mozGetUserMedia ||
+                        navigator.mediaDevices.msGetUserMedia);
       const op = {
         video: {
           width: { min: 160, ideal: 640, max: 1280 },
           height: { min: 120, ideal: 360, max: 720 }
         },
+        // require audio
         audio: true
       };
-      navigator.getUserMedia(
-        op,
-        stream => {
-          this.setState({ streamUrl: stream, localStream: stream });
-          this.localVideo.srcObject = stream;
+      navigator.mediaDevices.getUserMedia(op)
+        .then(stream => {
+          localStream.current = stream;
+          localVideo.current.srcObject = stream;
 
-          this.setAudioLocal()
-          this.setVideoLocal()
+          setAudioLocal()
+          setVideoLocal()
+
           resolve();
-        },
-        () => {}
-      );
+        })
+        .catch(err => console.log(err) || reject(err))
     });
-  }
 
-  setAudioLocal(){
-    if(this.state.localStream.getAudioTracks().length>0){
-      this.state.localStream.getAudioTracks().forEach(track => {
-        track.enabled=!track.enabled;
-      });
-    }
-    this.setState({
-      micState:!this.state.micState
-    })
-  }
-
-  setVideoLocal(){
-    if(this.state.localStream.getVideoTracks().length>0){
-      this.state.localStream.getVideoTracks().forEach(track => {
-        track.enabled=!track.enabled;
-      });
-    }
-    this.setState({
-      camState:!this.state.camState
-    })
-  }
-
-  // getDisplay() {
-  //   getDisplayStream().then(stream => {
-  //     stream.oninactive = () => {
-  //       this.state.peer.removeStream(this.state.localStream);
-  //       this.getUserMedia().then(() => {
-  //         this.state.peer.addStream(this.state.localStream);
-  //       });
-  //     };
-  //     this.setState({ streamUrl: stream, localStream: stream });
-  //     this.localVideo.srcObject = stream;
-  //     this.state.peer.addStream(stream);
-  //   });
-  // }
-
-  enter = roomId => {
-    this.setState({ connecting: true });
-    const peer = this.videoCall.init(
-      this.state.localStream,
-      this.state.initiator
+  const enter = roomId => {
+    setConnecting(true)
+    
+    const peerObject = videoCall.init(
+      localStream.current,
+      initiator.current
     );
-    this.setState({ peer });
 
-    peer.on('signal', data => {
+    peerObject.on('signal', data => {
+      console.log('peer signal')
       const signal = {
         room: roomId,
         desc: data
       };
-      this.state.socket.emit('signal', signal);
+      socket.emit('signal', signal);
     });
-    peer.on('stream', stream => {
-      this.remoteVideo.srcObject = stream;
-      this.setState({ connecting: false, waiting: false });
+
+    peerObject.on('stream', stream => {
+      remoteVideo.current.srcObject = stream;
+      setConnecting(false);
+      setWaiting(false);
     });
-    peer.on('error', function(err) {
+
+    peerObject.on('error', (err) => {
       console.log(err);
     });
+    peer.current = peerObject;
+
   };
 
-  call = otherId => {
-    this.videoCall.connect(otherId);
+  const call = otherId => {
+    videoCall.connect(otherId);
   };
-  renderFull = () => {
-    if (this.state.full) {
+
+  const renderFull = () => {
+    if (full) {
       return 'The room is full';
     }
   };
 
-  render() {
-    return (
-      <div className="baseBoard r-18bvks7 r-1ljd8xs r-13l2t4g r-1phboty r-13awgt0 r-1jgb5lz r-1ye8kvj r-1udh08x r-13qz1uu">
-        <div className="headerChatBoard dashLine">
-          <h2 aria-level="2" dir="ltr" className="css-4rbku5 css-901oao css-bfa6kz r-jwli3a r-1qd0xha r-1vr29t4 r-bcqeeo" id="root-header">
-            <span className="css-901oao css-16my406 r-1qd0xha r-ad9z0x r-bcqeeo r-qvutc0">Videos</span>
+  const setAudioLocal = () => {
+    if(localStream.current.getAudioTracks().length>0){
+      localStream.current.getAudioTracks().forEach(track => {
+        track.enabled=!track.enabled;
+      });
+    }
+    setMicState(!micState)
+  }
+
+  const setVideoLocal = () => {
+    if(localStream.current.getVideoTracks().length>0){
+      localStream.current.getVideoTracks().forEach(track => {
+        track.enabled=!track.enabled;
+      });
+    }
+    setCamState(!camState)
+  }
+
+  const sendMessage = ({ message, type, roomId }) => {
+    socket.emit('stoppedTyping', { typing: false })
+    socket.emit('newChatMessage', { message, type, roomId });
+  };
+
+  const setClientTyping = (typing) => socket.emit('typing', { typing, roomId });
+
+  return (
+    <div className='application--wrap'>
+      {/* Video section */}
+      <section className='video-wrapper' >
+        <div className='headerBoard dashLine'>
+          <h2 className='control-h2'>
+            Videos
           </h2>
-          <div className='viewBottom'>
-            {/* <button
-              className='control-btn'
-              onClick={() => {
-                this.getDisplay();
-              }}
-            >
-              <ShareScreenIcon />
-            </button> */}
+          <div>
             <button
               className='control-btn'
-              onClick={() => {
-                this.setAudioLocal();
-              }}
+              onClick={() => {setAudioLocal()}}
             >
               {
-                this.state.micState?(
+                micState?(
                   <MicOnIcon/>
                 ):(
                   <MicOffIcon/>
@@ -183,12 +190,10 @@ class VideoPanel extends React.Component {
             </button>
             <button
               className='control-btn'
-              onClick={() => {
-                this.setVideoLocal();
-              }}
+              onClick={() => {setVideoLocal()}}
             >
               {
-                this.state.camState?(
+                camState?(
                   <CamOnIcon/>
                 ):(
                   <CamOffIcon/>
@@ -197,78 +202,83 @@ class VideoPanel extends React.Component {
             </button>
           </div>
         </div>
-        <div className="baseBoard r-1pz39u2 r-13awgt0">
-          <div className='video-wrapper'>
-            <div className='local-video-wrapper'>
-              <div className="headerChatBoard avatarBoard">
-                  <img
-                    className="viewAvatarItem"
-                    src="https://abs.twimg.com/sticky/default_profile_images/default_profile_bigger.png"
-                    alt="icon avatar"
-                  />
-                  <div className="baseBoard">
-                    <span className="textHeaderChatBoard">
-                      John
-                    </span>
-                    <span className="textHeaderChatBoard">
-                      Male 33 Colombia
-                    </span>
-                  </div>
-              </div>
-              <video
-                autoPlay
-                id='localVideo'
-                muted
-                ref={video => (this.localVideo = video)}
-              />
-            </div>
-
-
-            <div id='remoteVideo' className={`${
-                this.state.connecting || this.state.waiting ? 'hide' : ''
-              }`}  >
-              <div className="headerChatBoard avatarBoard">
-                  <img
-                    className="viewAvatarItem"
-                    src="https://abs.twimg.com/sticky/default_profile_images/default_profile_bigger.png"
-                    alt="icon avatar"
-                  />
-                  <div className="baseBoard">
-                    <span className="textHeaderChatBoard">
-                      John
-                    </span>
-                    <span className="textHeaderChatBoard">
-                      Male 33 Colombia
-                    </span>
-                  </div>
-              </div>
-            </div>
-            
-            <video
-              autoPlay
-              className={`${
-                this.state.connecting || this.state.waiting ? 'hide' : ''
-              }`}
-              id='remoteVideo'
-              ref={video => (this.remoteVideo = video)}
+        <div className='local-video-wrapper' >
+          <div className='video-header'>
+            <img
+              className='video-avatar-img'
+              src='https://abs.twimg.com/sticky/default_profile_images/default_profile_bigger.png'
+              alt='icon avatar'
             />
-
-            {this.state.connecting && (
-              <div className='status'>
-                <p>Establishing connection...</p>
-              </div>
-            )}
-            {this.state.waiting && !this.state.connecting && (
-              <div className='status'>
-                <p>Waiting for someone...</p>
-              </div>
-            )}
-            {this.renderFull()}
+            <div className='video-avatar-info'>
+              <span className='video-avatar-info-name'>
+                {localStorage.getItem('name')}
+              </span>
+              <span className='video-avatar-info-content'>
+                {localStorage.getItem('gender') + '\t' + localStorage.getItem('age') + '\t' + localStorage.getItem('country')}
+              </span>
+            </div>
           </div>
+          <video
+            autoPlay
+            className='video-content'
+            muted
+            ref={localVideo}
+          />
         </div>
-      </div>
-    )
-  }
+        <div className={`${
+              connecting || waiting ? 'content-hide' : 'remote-video-wrapper'
+            }`} >
+          <div className='video-header'>
+            <img
+              className='video-avatar-img'
+              src='https://abs.twimg.com/sticky/default_profile_images/default_profile_bigger.png'
+              alt='icon avatar'
+            />
+            <div className='video-avatar-info'>
+              <span className='video-avatar-info-name'>
+                {localStorage.getItem('name')}
+              </span>
+              <span className='video-avatar-info-content'>
+                {localStorage.getItem('gender') + '\t' + localStorage.getItem('age') + '\t' + localStorage.getItem('country')}
+              </span>
+            </div>
+          </div>
+          <video
+            autoPlay
+            className='video-content'
+            muted
+            ref={remoteVideo}
+          />
+        </div>
+        
+        {connecting && waiting && (
+          <div className='status'>
+            <p>Establishing connection...</p>
+          </div>
+        )}
+        {!connecting && waiting && (
+          <div className='status'>
+            <p>Waiting for someone...</p>
+          </div>
+        )}
+        {renderFull()}
+      </section>
+
+      {/* Chat section */}
+      <section className='chat-wrapper' >
+        {socket && <Chat
+          clientId={socket.id}
+          roomId={roomId}
+          sendMessage={sendMessage}
+          messages={messages}
+          setClientTyping={setClientTyping}
+          partnerTyping={partnerTyping}
+        /> }
+      </section>
+    </div>
+    );
 }
 
+
 export default VideoPanel;
+  

@@ -301,7 +301,17 @@ export default class ChatBoard extends Component {
                     </button>
                 </div>
 
-                
+                {/* Loading */}
+                {this.state.isLoading ? (
+                    <div className="viewLoading">
+                        <ReactLoading
+                            type={'spin'}
+                            color={'#203152'}
+                            height={'3%'}
+                            width={'3%'}
+                        />
+                    </div>
+                ) : null}
             </div>
         )
     }
