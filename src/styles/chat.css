@@ -1,4 +1,5 @@
 
+
 .chat-wrapper {
   transition: .2s cubic-bezier(.4,0,.2,1);
   padding-left: 300px;
@@ -10,16 +11,17 @@
   flex-direction: column;
   flex-shrink: 0;
   position: relative;
+  z-index: 2;
 }
 
 .chat-content {
   display: flex;
   flex: 1;
   flex-direction: column;
+  overflow-x: hidden;
   overflow-y: scroll;
   padding-bottom: 10px;
   border-bottom: 1px solid #38444d;
-  border-top: 1px solid #38444d;
 }
 
 .chat-content::-webkit-scrollbar-track {
@@ -55,17 +57,17 @@
   width: 30px;
 }
 .chat-bottom-input {
-  -webkit-flex: 1 1;
   flex: 1 1;
   padding-left: 20px;
-  padding-right: 40px;
+  padding-right: 20px;
   border: 1px solid #1da1f2;
   border-radius: 20px;
   background: transparent;
   color: #fff;
   height: 36px;
-  margin: 1px 6px 5px 6px;
+  margin: 10px 6px 5px 6px;
   outline: none;
+  font-size: 1.2rem;
   user-select: text;
   white-space: pre-wrap;
   overflow-wrap: break-word;
@@ -79,7 +81,8 @@
   width: 100%;
   align-items: center;
   justify-content: flex-start;
-  overflow-y: scroll;
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 
 .viewStickers::-webkit-scrollbar-track {
@@ -207,19 +210,72 @@
   margin-left: auto;
 }
 
-.partnerTyping {
-  color: black;
-  width: 20%;
-  margin-left: auto;
-  margin-right: 2px;
+.spinner-container {
+  width: 50px;
+  height: 50px;
+  border: 2px solid;
+  border-radius: 12px;
 }
 
-.partnerTyping:after {
-  overflow: hidden;
-  display: inline-block;
-  vertical-align: bottom;
-  -webkit-animation: ellipsis steps(4,end) 900ms infinite;      
-  animation: ellipsis steps(4,end) 900ms infinite;
-  content: "\2026"; /* ascii code for the ellipsis character */
-  width: 0px;
+.sk-fade-in {
+  animation: sk-fade-in 0.5s;
+  outline: none;
+}
+.spinner-sender {
+  color: #34516e;
+  text-align: center;
+  margin-top: 10px;
+  margin-left: 15px;
+  line-height: 4;
+  height: 50px;
+}
+.spinner-receiver {
+  color: #34713dd4;
+  margin-top: 10px;
+  margin-right: 15px;
+  float: right;
+  line-height: 4;
+  height: 50px;
+}
+.leave-room {
+  background-color: #15202bbf;
+  margin-left: 10px;
+  border-radius: 9px;
+  outline: none;
+  cursor: pointer;
+}
+
+@media only screen and (max-width: 600px) {
+  .chat-wrapper {
+    padding-left: 0;
+  }
+  .video-wrapper, .decrease-panel {
+    display: none;
+  }
+  .chat-bottom-input {
+    font-size: 1rem;
+    margin: 0 5px 5px 5px;
+    height: 30px;
+  }
+  .emoji-mart {
+    width: 270px;
+    height: 300px;
+    overflow: hidden;
+  }
+  .my-message-gif, .their-message-gif {
+    width: 10rem;
+    margin-top: 5px;
+  }
+  .my-message-image, .their-message-image {
+    width: 14rem;
+    margin-top: 5px;
+  }
+  .my-message, .their-message {
+    max-width: 270px;
+    margin-top: 5px;
+    padding: 5px 5px;
+  }
+  .chat-content {
+    padding-bottom: 5px;
+  }
 }

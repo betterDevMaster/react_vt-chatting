@@ -36,19 +36,19 @@ button, input, select, textarea {
 }
 
 input:focus::-webkit-input-placeholder {
-	color: transparent;
+	color: #504a4a;
 }
 
 input:focus:-moz-placeholder {
-	color: transparent;
+	color: #504a4a;
 }
 
 input:focus::-moz-placeholder {
-	color: transparent;
+	color: #504a4a;
 }
 
 input:focus:-ms-input-placeholder {
-	color: transparent;
+	color: #504a4a;
 }
 
 body,html {
@@ -591,20 +591,17 @@ body,html {
 	margin-left: 5px;
 }
 
-::-webkit-input-placeholder {
-	color: inherit;
+::-webkit-input-placeholder { /* Chrome/Opera/Safari */
+	color: #504a4a;
 }
-
-::-moz-placeholder {
-	color: inherit;
+::-moz-placeholder { /* Firefox 19+ */
+	color: #504a4a;
 }
-
-:-ms-input-placeholder {
-	color: inherit;
+:-ms-input-placeholder { /* IE 10+ */
+	color: #504a4a;
 }
-
-:-moz-placeholder {
-	color: inherit;
+:-moz-placeholder { /* Firefox 18- */
+	color: #504a4a;
 }
 
 .d-none {

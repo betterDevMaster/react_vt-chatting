@@ -1,15 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import VideoCall from '../helpers/simple-peer';
-import '../styles/dashboard.css';
 import io from 'socket.io-client';
 import Chat from './CustomChat';
+import { serverAPI } from '../config'
 import { MicOnIcon,MicOffIcon,CamOnIcon,CamOffIcon } from './Icons';
   
-const VideoPanel  = ({ params }) => {
+const VideoPanel  = () => {
   // use refs for these vars so they exist outside of state
   // we initialise socket listeners on render, and the closure means stale state is referenced.
   // See https://stackoverflow.com/questions/54675523/state-inside-useeffect-refers-the-initial-state-always-with-react-hooks
-  
+  const roomid = localStorage.getItem('roomid')
   const peer = useRef({});
   const localStream = useRef({});
   const localVideo = useRef();
@@ -25,14 +25,13 @@ const VideoPanel  = ({ params }) => {
   const [partnerTyping, setPartnerTyping] = useState(false)
 
   const [socket, setSocket] = useState(io(process.env.REACT_APP_SIGNALING_SERVER))
-  const [roomId, setRoomId] = useState(params);
+  const [roomId, setRoomId] = useState(roomid)
 
   const videoCall = new VideoCall();
-
-  localStorage.setItem('name', 'John')
-  localStorage.setItem('gender', 'male')
-  localStorage.setItem('age', 33)
-  localStorage.setItem('country', 'Colombia')
+  const [remoteUser, serRemoteUser] = useState({})
+  const setClientTyping = (typing) => socket.emit('typing', { typing, roomId });
+  const preGender = parseInt(localStorage.getItem('gender'))
+  const gender = (preGender === 1 ? 'Male' : preGender === 2 ? 'Female' : 'Unknown')
 
   // component did mount
   useEffect(() => {
@@ -104,7 +103,13 @@ const VideoPanel  = ({ params }) => {
 
   const enter = roomId => {
     setConnecting(true)
-    
+
+    const value = {
+      roomId: roomId,
+      userId: localStorage.getItem('userid')
+    }
+    getPeerUserInfo(value)
+
     const peerObject = videoCall.init(
       localStream.current,
       initiator.current
@@ -126,6 +131,7 @@ const VideoPanel  = ({ params }) => {
     });
 
     peerObject.on('error', (err) => {
+      setWaiting(true)
       console.log(err);
     });
     peer.current = peerObject;
@@ -165,16 +171,32 @@ const VideoPanel  = ({ params }) => {
     socket.emit('newChatMessage', { message, type, roomId });
   };
 
-  const setClientTyping = (typing) => socket.emit('typing', { typing, roomId });
+  const getPeerUserInfo = (value) => {
+    const url = 'getPeerUserInfo'
+    fetch(`${serverAPI}/${url}`, {
+      method: 'post',
+      headers: {
+          accept: 'application/json',
+          'content-type': 'application/json'
+      },
+      body: JSON.stringify(value)
+    })
+    .then(res => res.json())
+    .then(data => {
+      console.log('------------peer data', data)
+      serRemoteUser(data.record)
+    })
+    .catch(err => console.log(err))
+  }
 
   return (
     <div className='application--wrap'>
       {/* Video section */}
       <section className='video-wrapper' >
         <div className='headerBoard dashLine'>
-          <h2 className='control-h2'>
+          <h1 className='control-h2'>
             Videos
-          </h2>
+          </h1>
           <div>
             <button
               className='control-btn'
@@ -211,10 +233,10 @@ const VideoPanel  = ({ params }) => {
             />
             <div className='video-avatar-info'>
               <span className='video-avatar-info-name'>
-                {localStorage.getItem('name')}
+                {localStorage.getItem('nickname')}
               </span>
               <span className='video-avatar-info-content'>
-                {localStorage.getItem('gender') + '\t' + localStorage.getItem('age') + '\t' + localStorage.getItem('country')}
+                {gender + '\t' + localStorage.getItem('age') + '\t' + localStorage.getItem('country')}
               </span>
             </div>
           </div>
@@ -234,14 +256,19 @@ const VideoPanel  = ({ params }) => {
               src='https://abs.twimg.com/sticky/default_profile_images/default_profile_bigger.png'
               alt='icon avatar'
             />
-            <div className='video-avatar-info'>
-              <span className='video-avatar-info-name'>
-                {localStorage.getItem('name')}
-              </span>
-              <span className='video-avatar-info-content'>
-                {localStorage.getItem('gender') + '\t' + localStorage.getItem('age') + '\t' + localStorage.getItem('country')}
-              </span>
-            </div>
+            {remoteUser ? 
+              (
+              <div className='video-avatar-info'>
+                <span className='video-avatar-info-name'>
+                  {remoteUser.nickname}
+                </span>
+                <span className='video-avatar-info-content'>
+                  { (remoteUser.gender === 1 ? 'Male' : remoteUser.gender === 2 ? 'Female' : 'Unknown')
+                   + '\t' + remoteUser.age + '\t' + remoteUser.country}
+                </span>
+              </div>
+              )
+            : null }
           </div>
           <video
             autoPlay

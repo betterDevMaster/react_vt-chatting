@@ -46,7 +46,7 @@ body.jw-modal-open {
 }
 
 .modalContent {
-    top: 20%;
+    top: 10%;
     padding: 0px 10px 30px 10px;
     border-radius: 10px;
     max-width: 400px;
@@ -136,6 +136,7 @@ input::placeholder {
     font-weight: bold;
     margin-top: 20px;
     cursor: pointer;
+    outline: none;
 }
 
 .viewWrapInputFile {
@@ -171,4 +172,16 @@ input::placeholder {
 
 .genderRadio label {
     margin: 0 20px 0 10px;
+}
+
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
 }

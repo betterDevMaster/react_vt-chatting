@@ -7,13 +7,19 @@
 	
 	var offsetbg = 0;
 
+    function width(){
+        return(window.innerWidth)?
+        window.innerWidth:
+        document.documentElement.clientWidth||document.body.clientWidth||0;
+    }
+
     $(document).ready(function() {
         $main = $("#mainBody");
         $body = $("body");
         $cloud1 = $("#cloud1");
         $cloud2 = $("#cloud2");
         $cloud3 = $("#cloud3");
-        mainwidth = $main.outerWidth();
+        mainwidth = width() + 150;
         
         var flutter = setInterval(function flutter() {
             if (offset1 >= mainwidth) {

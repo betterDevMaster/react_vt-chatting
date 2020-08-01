@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
 import ReactLoading from 'react-loading'
-import moment from 'moment'
 import { ImageUpload, GifUpload, EmojiUpload, MessageSend } from '../Icons';
 import images from '../Themes/Images'
-import {AppString} from '../Const'
+import 'emoji-mart/css/emoji-mart.css'
+import { Picker } from 'emoji-mart'
 
 const MessageBox = ({ onSendMessage, setClientTyping }) => {
   const [message, setMessage] = useState('');
   const [isShowSticker, setIsShowSticker] = useState(false)
   const [refInput, setRefInput] = useState()
   const [isLoading, setIsLoading] = useState(false)
-  var currentPhotoFile = null
+  const [emojiPickerState, SetEmojiPicker] = useState(false);
 
   const renderStickers = () => {
     return (
@@ -98,13 +98,9 @@ const MessageBox = ({ onSendMessage, setClientTyping }) => {
       setIsLoading(false)
     }
   }
-
-  const onKeyboardPress = (event) => {
-      if (event.key === 'Enter') {
-        if (!event.shiftKey){
-          onPreSendMessage(message, 0)
-        }
-      }
+  function triggerPicker(event) {
+    event.preventDefault();
+    SetEmojiPicker(!emojiPickerState);
   }
 
   return (
@@ -130,17 +126,32 @@ const MessageBox = ({ onSendMessage, setClientTyping }) => {
             <GifUpload />
         </button>
         <input
-            className="chat-bottom-input"
-            placeholder="Start a new message..."
-            value={message}
-            onChange={event => {
-              setMessage(event.target.value)
-            }}
-            onKeyPress={onKeyboardPress}
+          className="chat-bottom-input"
+          placeholder="Start a new message..."
+          value={message}
+          onChange={event => {
+            setClientTyping(true)
+            setMessage(event.target.value)
+          }}
+          onKeyDown={evt => {
+            // maybe a bit much?
+            if (evt.key === "Enter") {
+              evt.preventDefault();
+              setClientTyping(false)
+              onPreSendMessage(message, 0);
+            }
+          }}
         />
         <button
           className='control-btn'
+          onClick={triggerPicker}
+        >
+            <EmojiUpload />
+        </button>
+        <button
+          className='control-btn'
           onClick={() => {
+            setClientTyping(false)
             onPreSendMessage(message, 0)
           }}
         >
@@ -151,15 +162,23 @@ const MessageBox = ({ onSendMessage, setClientTyping }) => {
 
       {/* Loading */}
       {isLoading ? (
-          <div className="viewLoading">
-              <ReactLoading
-                  type={'spin'}
-                  color={'#203152'}
-                  height={'3%'}
-                  width={'3%'}
-              />
-          </div>
+        <div className="viewLoading">
+            <ReactLoading
+                type={'spin'}
+                color={'#203152'}
+                height={'3%'}
+                width={'3%'}
+            />
+        </div>
       ) : null}
+
+      {emojiPickerState &&
+        <Picker 
+          set='apple' 
+          title="Pick your emoji…"
+          emoji="point_up"
+          onSelect={emoji => setMessage(message + emoji.native)}
+          style={{ position: 'absolute', bottom: '6%', right: '6%' }} />}
     </>
   )
 }

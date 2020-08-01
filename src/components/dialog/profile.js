@@ -1,55 +1,55 @@
 import React, {Component} from 'react'
 import ReactLoading from 'react-loading'
 import {withRouter} from 'react-router-dom'
-import 'react-toastify/dist/ReactToastify.css'
-import {myFirestore, myStorage} from '../../Config/MyFirebase'
+import { serverAPI } from '../../config'
+import { ToastContainer, toast } from 'react-toastify'
 import images from '../Themes/Images'
-import './index.css'
-import {AppString} from '../Const'
-// import SocialButton from '../common/SocialButton'
-// import { JwModal } from '.';
 
-// function Setting(props) {
-//     const dispatch = useDispatch()
+import 'react-toastify/dist/ReactToastify.css'
+import './index.css'
+
 class Profile extends Component {
     constructor(props) {
         super(props)
         this.state = {
             isLoading: false,
-            // id: localStorage.getItem(AppString.ID),
-            // name: localStorage.getItem(AppString.name),
-            // aboutMe: localStorage.getItem(AppString.ABOUT_ME),
-            // photoUrl: localStorage.getItem(AppString.PHOTO_URL)
-            aboutMe: "This is static test about me",
-            id: "0dp4NACJMYT5DsMftyw9n5SV7QA2",
-            email: "test@test.com",
-            name: "rapidspikes",
-            gender: 1,
-            age: 21,
-            country: "colombia",
-            photoUrl: "https://lh4.googleusercontent.com/-5w7J-G1h9jQ/AAAAAAAAAAI/AAAAAAAAAAA/AMZuuclrfYXPy933UA9jCPcV0LUiCZcDmA/s96-c/photo.jpg",
+            email: localStorage.getItem('email'),
+            fullname: localStorage.getItem('fullname'),
+            nickname: localStorage.getItem('nickname'),
+            gender: parseInt(localStorage.getItem('gender')),
+            age: parseInt(localStorage.getItem('age')),
+            country: localStorage.getItem('country'),
+            photo: localStorage.getItem('photo'),
         }
-
-        this.newAvatar = null
-        this.newPhotoUrl = ''
     }
 
-    // componentDidMount() {
-    //     this.checkLogin()
-    // }
-
-    // checkLogin = () => {
-    //     if (!localStorage.getItem(AppString.ID)) {
-    //         this.props.history.push('/')
-    //     }
-    // }
-
-    onChangeName = event => {
-        this.setState({name: event.target.value})
+    onChangeAvatar = event => {
+        if (event.target.files && event.target.files[0]) {
+            this.setState({isLoading: true})
+            let reader = new FileReader();
+    
+            reader.onloadend = () => {
+                this.setState({photo: reader.result})
+                this.setState({isLoading: false})
+            }
+            reader.readAsDataURL(event.target.files[0])
+        }
     }
 
     onChangeEmail = event => {
         this.setState({email: event.target.value})
+    }
+
+    onChangeFullname = event => {
+        this.setState({fullname: event.target.value})
+    }
+
+    onChangeNickName = event => {
+        this.setState({nickname: event.target.value})
+    }
+
+    onChangeGender = event => {
+        this.setState({gender: event.target.value})
     }
 
     onChangeAge = event => {
@@ -64,87 +64,62 @@ class Profile extends Component {
         this.setState({country: event.target.value})
     }
 
-    onChangeAboutMe = event => {
-        this.setState({aboutMe: event.target.value})
+    updateUserInfo = () => {
+        const value = {
+            id: localStorage.getItem('userid'),
+            email: this.state.email,
+            fullname: this.state.fullname,
+            nickname: this.state.nickname,
+            gender: this.state.gender,
+            age: this.state.age,
+            country: this.state.country,
+            photo: this.state.photo
+        }
+        var url = 'updateSignUserData'
+
+        fetch(`${serverAPI}/${url}`, {
+            method: 'post',
+            headers: {
+                accept: 'application/json',
+                'content-type': 'application/json'
+            },
+            body: JSON.stringify(value)
+        })
+        .then(res => res.json())
+        .then(data => {
+            console.log('updateUserInfo ----------',data)
+            if (data.status === 1) {
+                console.log('--------------',data.record)
+                toast.success('Updated your info.')
+            }
+        })
+        .catch(err => console.log(err))
     }
 
-    onChangeAvatar = event => {
-        if (event.target.files && event.target.files[0]) {
-            // Check this file is an image?
-            const prefixFiletype = event.target.files[0].type.toString()
-            if (prefixFiletype.indexOf(AppString.PREFIX_IMAGE) !== 0) {
-                this.props.showToast(0, 'This file is not an image')
-                return
-            }
-            this.newAvatar = event.target.files[0]
-            this.setState({photoUrl: URL.createObjectURL(event.target.files[0])})
-        } else {
-            this.props.showToast(0, 'Something wrong with input file')
+    validateEmail = event => {
+        var reg = /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
+
+        if (reg.test(event.target.value) == false) 
+        {
+            toast.error('Failed in Email validation.')
+            this.setState({email: ''})
         }
     }
-
-    uploadAvatar = () => {
-        this.setState({isLoading: true})
-        if (this.newAvatar) {
-            const uploadTask = myStorage
-                .ref()
-                .child(this.state.id)
-                .put(this.newAvatar)
-            uploadTask.on(
-                AppString.UPLOAD_CHANGED,
-                null,
-                err => {
-                    this.props.showToast(0, err.message)
-                },
-                () => {
-                    uploadTask.snapshot.ref.getDownloadURL().then(downloadURL => {
-                        this.updateUserInfo(true, downloadURL)
-                    })
-                }
-            )
-        } else {
-            this.updateUserInfo(false, null)
-        }
-    }
-
-    updateUserInfo = (isUpdatePhotoUrl, downloadURL) => {
-        let newInfo
-        if (isUpdatePhotoUrl) {
-            newInfo = {
-                name: this.state.name,
-                aboutMe: this.state.aboutMe,
-                photoUrl: downloadURL
-            }
-        } else {
-            newInfo = {
-                name: this.state.name,
-                aboutMe: this.state.aboutMe
-            }
-        }
-        myFirestore
-            .collection(AppString.NODE_USERS)
-            .doc(this.state.id)
-            .update(newInfo)
-            .then(data => {
-                localStorage.setItem(AppString.name, this.state.name)
-                localStorage.setItem(AppString.ABOUT_ME, this.state.aboutMe)
-                if (isUpdatePhotoUrl) {
-                    localStorage.setItem(AppString.PHOTO_URL, downloadURL)
-                }
-                this.setState({isLoading: false})
-                this.props.showToast(1, 'Update info success')
-            })
+    ValidateNumber = event => {
+        const min = parseInt(event.target.min)
+        const max = parseInt(event.target.max)
+        var value = parseInt(event.target.value)
+        
+        value = Math.max(min, Math.min(value, max))
+        this.setState({age: value})
     }
 
     render() {
         return (
             <div className="viewRoot">
-                {/* <div className="header">
-                    <span>PROFILE</span>
-                </div> */}
                 <div className="avatarPanel">
                     <h2>User Profile</h2>
-                    <img className="avatar" alt="Avatar" src={this.state.photoUrl}/>
+                    <img className="avatar" alt="Avatar" src={this.state.photo}/>
 
                     <div className="viewWrapInputFile">
                         <img
@@ -164,51 +139,53 @@ class Profile extends Component {
                         />
                     </div>
                 </div>
-
-                <input
-                    className="textInput"
-                    value={this.state.name ? this.state.name : ''}
-                    placeholder="Your name..."
-                    onChange={this.onChangeName}
-                />
                 <input
                     className="textInput"
                     value={this.state.email ? this.state.email : ''}
                     placeholder="Your email..."
                     onChange={this.onChangeEmail}
+                    onBlur={this.validateEmail} 
+                />
+                <input
+                    className="textInput"
+                    value={this.state.fullname ? this.state.fullname : ''}
+                    placeholder="Your name..."
+                    onChange={this.onChangeFullname}
+                />
+                <input
+                    className="textInput"
+                    value={this.state.nickname ? this.state.nickname : ''}
+                    placeholder="Your nickname..."
+                    onChange={this.onChangeNickName}
                 />
                 <input
                     className="textInput"
                     value={this.state.age ? this.state.age : ''}
                     type="number"
-                    min={20}
+                    min={13}
+                    max={99}
                     placeholder="Your age..."
                     onChange={this.onChangeAge}
+                    onBlur={this.ValidateNumber}
                 />
                 <div className="genderRadio">
-                    {/* <div> */}
-                        <input type="radio" id="gender" name="gender" value="1" />
-                        <label htmlFor="male">Male</label>
-                    {/* </div>
-                    <div> */}
-                        <input type="radio" id="gender" name="gender" value="2" />
-                        <label htmlFor="female">Female</label>
-                    {/* </div> */}
+                    <input type="radio" id="gender" name="gender" value="1" onChange={this.onChangeGender}
+                        defaultChecked={this.state.gender === 1 ? true : false} />
+                    <label htmlFor="male">Male</label>
+
+                    <input type="radio" id="gender" name="gender" value="2"  onChange={this.onChangeGender}
+                        defaultChecked={this.state.gender === 2 ? true : false} />
+                    <label htmlFor="female">Female</label>
                 </div>
                 <input
                     className="textInput"
                     value={this.state.country ? this.state.country : ''}
                     placeholder="Your country..."
+                    disabled
                     onChange={this.onChangeCountry}
                 />
-                <input
-                    className="textInput"
-                    value={this.state.aboutMe ? this.state.aboutMe : ''}
-                    placeholder="Tell about yourself..."
-                    onChange={this.onChangeAboutMe}
-                />
 
-                <button className="btnUpdate" onClick={this.uploadAvatar}>
+                <button className="btnUpdate" onClick={this.updateUserInfo}>
                     Update
                 </button>
 
@@ -222,6 +199,11 @@ class Profile extends Component {
                         />
                     </div>
                 ) : null}
+                <ToastContainer 
+                    autoClose={5000}
+                    hideProgressBar={true}
+                    position={toast.POSITION.BOTTOM_RIGHT}
+                />
             </div>
         )
     }

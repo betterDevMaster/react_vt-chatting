@@ -1,6 +1,8 @@
 $(document).ready(function() {
     $('.sign > section > div > div form > .switch span').on('click', function() {
         $('body').hide();
+        console.log('ready account login')
+
         var btn = $('.two > section > div > div form .submit.global').text();
         $('.two > section > div > div form .submit.global').text($('.two > section > div > div form .submit.global').attr('btn'));
         $('.two > section > div > div form .submit.global').attr('btn', btn);

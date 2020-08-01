@@ -1,11 +1,10 @@
 import React from 'react';
+import ReactSpinner from 'react-spinkit'
 import ScrollToBottom from 'react-scroll-to-bottom';
 import '../../styles/chat.css';
 import images from '../Themes/Images'
 
 const Messages = ({ messages, clientId, partnerTyping }) => {
-  console.log('--------------', messages, clientId, partnerTyping)
-
   const getGifImage = value => {
     switch (value) {
         case 'mimi1':
@@ -77,7 +76,9 @@ const Messages = ({ messages, clientId, partnerTyping }) => {
           </>
         )
       )}
-      {partnerTyping && <p key={1} className="partnerTyping">Partner is typing</p>}
+      {partnerTyping &&  
+        <ReactSpinner name='three-bounce' className='spinner-sender' /> 
+      }
     </ScrollToBottom>
   )
 }
