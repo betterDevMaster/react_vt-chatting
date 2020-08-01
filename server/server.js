@@ -249,6 +249,7 @@ class Sqlite {
                             row.country = 'Colombia'
                             row.photo = photo
                             row.usercnt = usercnt
+                            row.nickuser = 1
                         } catch(e){
                             Debug.err(e.message, e.user)
                             return null;
@@ -557,8 +558,11 @@ function updateUserAfterRemoteUserDisconnet(_DB, roomId, userId, nickname, res) 
         if (err) 
             return Debug.err(' SQLITE: Failed in updating the remote user.', roomId, userId)
         
-        const room_id = await getAvailableRoom(_DB, nickname);
-        await updateUserRoomId(_DB, room_id, userId);
+        var room_id = ''
+        if (nickname !== '') {
+            room_id = await getAvailableRoom(_DB, nickname);
+            await updateUserRoomId(_DB, room_id, userId);
+        }
 
         Debug.log(' Succeed in updating the remote user.', roomId, userId)
         return res.send({status: 1, message: 'Updated Room remote user', newroom: room_id})
@@ -573,13 +577,14 @@ function updateRoomUsers(_DB, roomId, userId, userCount, nickname, res) {
         if (err) 
             return Debug.err(' SQLITE: Failed in updating the Room users.', roomId, userId)
         
-        if (userCount === 2) return updateUserAfterRemoteUserDisconnet(_DB, roomId, userId, nickname)
-
-        const room_id = await getAvailableRoom(_DB, nickname);
-        await updateUserRoomId(_DB, room_id, userId);
-
-        Debug.log(' Succeed in updating the Room users.', room_id, userId)
-        return res.send({status: 1, message: 'Updated Room user', newroom: room_id})
+        if (userCount === 2) { updateUserAfterRemoteUserDisconnet(_DB, roomId, userId, nickname, res) }
+        else {
+            const room_id = await getAvailableRoom(_DB, nickname);
+            await updateUserRoomId(_DB, room_id, userId);
+    
+            Debug.log(' Succeed in updating the Room users.', room_id, userId)
+            return res.send({status: 1, message: 'Updated Room user', newroom: room_id})
+        }
     })
 }
 function updateUserRoomId(_DB, roomId, userId) {
@@ -591,7 +596,7 @@ function updateUserRoomId(_DB, roomId, userId) {
         if (err) 
             Debug.err(' SQLITE: Failed in updating the User roomid.', roomId, userId)
         else {
-            Debug.log(' Succeed in updating the User roomid.', room_id, userId)
+            Debug.log(' Succeed in updating the User roomid.', roomId, userId)
         }
     })
 }

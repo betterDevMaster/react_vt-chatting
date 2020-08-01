@@ -70,7 +70,7 @@ function Login(props){
         const tipEle = document.getElementsByClassName('ajxout')[0]
         tipEle.style.display = 'inline'
         tipEle.innerHTML = data.message
-        // console.log('--------------', data)
+        console.log('--------------', data)
 
         // User Login Success
         if (data.status === 1) { 
@@ -140,9 +140,8 @@ function Login(props){
         const min = parseInt(event.target.min)
         const max = parseInt(event.target.max)
         var value = parseInt(event.target.value)
-        
         value = Math.max(min, Math.min(value, max))
-        setAge(event.target.value)
+        setAge(value)
     }
 
     return (
