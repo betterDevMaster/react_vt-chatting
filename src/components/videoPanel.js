@@ -3,7 +3,11 @@ import VideoCall from '../helpers/simple-peer';
 import io from 'socket.io-client';
 import Chat from './CustomChat';
 import { serverAPI } from '../config'
-import { MicOnIcon,MicOffIcon,CamOnIcon,CamOffIcon } from './Icons';
+import { SettingChat,MicOnIcon,MicOffIcon,CamOnIcon,CamOffIcon } from './Icons';
+import { ToastContainer, toast } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
+import { JwModal } from './dialog';
+import Profile from './dialog/profile'
   
 const VideoPanel  = () => {
   // use refs for these vars so they exist outside of state
@@ -32,9 +36,11 @@ const VideoPanel  = () => {
   const setClientTyping = (typing) => socket.emit('typing', { typing, roomId });
   const preGender = parseInt(localStorage.getItem('gender'))
   const gender = (preGender === 1 ? 'Male' : preGender === 2 ? 'Female' : 'Unknown')
+  const userSetting = localStorage.getItem('email')
+
 
   // component did mount
-  useEffect(() => {
+  useEffect(() => {    
     getUserMedia().then(() => {
       socket.emit('join', { roomId: roomId });
     });
@@ -74,6 +80,13 @@ const VideoPanel  = () => {
     );
   }, [])
 
+  useEffect(() => {
+    console.log('updateuser --------', localStorage.getItem('updateuser'))
+    if (parseInt(localStorage.getItem('updateuser')) === 1) {
+      toast.info('Remote user info updated!')
+      localStorage.setItem('updateuser', 0)
+    }
+  }, [localStorage.getItem('updateuser')]);
 
   const getUserMedia = () => new Promise((resolve, reject) => {
       navigator.mediaDevices.getUserMedia = ( navigator.mediaDevices.getUserMedia ||
@@ -144,7 +157,7 @@ const VideoPanel  = () => {
 
   const renderFull = () => {
     if (full) {
-      return 'The room is full';
+      return <div className='room-full'>The room is full</div>;
     }
   };
 
@@ -183,7 +196,6 @@ const VideoPanel  = () => {
     })
     .then(res => res.json())
     .then(data => {
-      console.log('------------peer data', data)
       serRemoteUser(data.record)
     })
     .catch(err => console.log(err))
@@ -198,6 +210,14 @@ const VideoPanel  = () => {
             Videos
           </h1>
           <div>
+            { userSetting !== 'null' &&
+            <button
+                className='control-btn'
+                onClick={JwModal.open('profile')} 
+            >
+                <SettingChat/>
+            </button> 
+            }
             <button
               className='control-btn'
               onClick={() => {setAudioLocal()}}
@@ -228,7 +248,7 @@ const VideoPanel  = () => {
           <div className='video-header'>
             <img
               className='video-avatar-img'
-              src='https://abs.twimg.com/sticky/default_profile_images/default_profile_bigger.png'
+              src={localStorage.getItem('photo')}
               alt='icon avatar'
             />
             <div className='video-avatar-info'>
@@ -250,26 +270,26 @@ const VideoPanel  = () => {
         <div className={`${
               connecting || waiting ? 'content-hide' : 'remote-video-wrapper'
             }`} >
+          {remoteUser ? 
+          (
           <div className='video-header'>
             <img
               className='video-avatar-img'
-              src='https://abs.twimg.com/sticky/default_profile_images/default_profile_bigger.png'
+              src={remoteUser.photo}
               alt='icon avatar'
             />
-            {remoteUser ? 
-              (
-              <div className='video-avatar-info'>
-                <span className='video-avatar-info-name'>
-                  {remoteUser.nickname}
-                </span>
-                <span className='video-avatar-info-content'>
-                  { (remoteUser.gender === 1 ? 'Male' : remoteUser.gender === 2 ? 'Female' : 'Unknown')
-                   + '\t' + remoteUser.age + '\t' + remoteUser.country}
-                </span>
-              </div>
-              )
-            : null }
+            <div className='video-avatar-info'>
+              <span className='video-avatar-info-name'>
+                {remoteUser.nickname}
+              </span>
+              <span className='video-avatar-info-content'>
+                { (remoteUser.gender === 1 ? 'Male' : remoteUser.gender === 2 ? 'Female' : 'Unknown')
+                  + '\t' + remoteUser.age + '\t' + remoteUser.country}
+              </span>
+            </div>
           </div>
+          )
+          : null }
           <video
             autoPlay
             className='video-content'
@@ -296,12 +316,27 @@ const VideoPanel  = () => {
         {socket && <Chat
           clientId={socket.id}
           roomId={roomId}
+          toast={toast}
           sendMessage={sendMessage}
           messages={messages}
           setClientTyping={setClientTyping}
           partnerTyping={partnerTyping}
         /> }
       </section>
+      <ToastContainer
+        position="top-right"
+        autoClose={7000}
+        hideProgressBar
+        newestOnTop={false}
+        closeOnClick={false}
+        rtl={false}
+        pauseOnFocusLoss={false}
+        draggable={false}
+        pauseOnHover={true}
+      />
+      <JwModal id="profile">
+        <Profile />
+      </JwModal>
     </div>
     );
 }

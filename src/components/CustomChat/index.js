@@ -1,17 +1,15 @@
 import React, { useState, useRef } from 'react';
 import MessageBox from './messageBox';
 import Messages from './messages';
-import { JwModal } from '../dialog';
+// import { JwModal } from '../dialog';
 import { IncreasePanel, DecreasePanel, SettingChat, NextChat, ExitChat } from '../Icons';
-import Profile from '../dialog/profile'
+// import Profile from '../dialog/profile'
 import Utils from '../utils/position'
 import { serverAPI } from '../../config'
-import { ToastContainer, toast } from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css'
 
-const Chat = ({ props, messages, sendMessage, roomId, clientId, partnerTyping, setClientTyping }) => {
+const Chat = ({ props, messages, sendMessage, roomId, clientId, partnerTyping, setClientTyping, toast }) => {
   const [decreaseLeftPanel, setDecreaseLeftPanel] = useState(true)
-  const userSetting = localStorage.getItem('email')
+  // const userSetting = localStorage.getItem('email')
 
   const handleBack = (event) => {
     if (decreaseLeftPanel) {
@@ -64,6 +62,9 @@ const Chat = ({ props, messages, sendMessage, roomId, clientId, partnerTyping, s
       nickUser: localStorage.getItem('nickuser')
     }
     setDisconnectUser('setDisconnectUser', value)
+
+    localStorage.clear();
+    
     window.location.href = '/'
   }
 
@@ -79,9 +80,10 @@ const Chat = ({ props, messages, sendMessage, roomId, clientId, partnerTyping, s
       })
       .then(res => res.json())
       .then(data => {
-        console.log('setDisconnectUser : ------------', data)
         if (data.status === 1) {
           resolve(data.newroom)
+        } else {
+          toast.error(data.message)
         }
       })
       .catch(err => console.log(err))
@@ -101,14 +103,14 @@ const Chat = ({ props, messages, sendMessage, roomId, clientId, partnerTyping, s
           Messages
         </h1>
         <div>
-          { userSetting !== 'null' &&
+          {/* { userSetting !== 'null' &&
           <button
               className='control-btn'
               onClick={JwModal.open('profile')} 
           >
               <SettingChat/>
           </button> 
-          }
+          } */}
           <button
               className='control-btn'
               onClick={handleNext}
@@ -134,20 +136,9 @@ const Chat = ({ props, messages, sendMessage, roomId, clientId, partnerTyping, s
           setClientTyping={setClientTyping}
           />
       </div>
-      <JwModal id="profile">
+      {/* <JwModal id="profile">
         <Profile />
-      </JwModal>
-      <ToastContainer
-        position="top-center"
-        autoClose={700000}
-        hideProgressBar
-        newestOnTop={false}
-        closeOnClick={false}
-        rtl={false}
-        pauseOnFocusLoss={false}
-        draggable={false}
-        pauseOnHover={true}
-      />
+      </JwModal> */}
     </>
   )
 }

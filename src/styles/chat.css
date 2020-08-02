@@ -245,6 +245,12 @@
   cursor: pointer;
 }
 
+.room-full {
+  color: #adff2f;
+  font-size: 1rem;
+  text-align: center;
+}
+
 @media only screen and (max-width: 600px) {
   .chat-wrapper {
     padding-left: 0;

@@ -73,7 +73,7 @@ class Profile extends Component {
             gender: this.state.gender,
             age: this.state.age,
             country: this.state.country,
-            photo: this.state.photo
+            photo: this.state.photo,
         }
         var url = 'updateSignUserData'
 
@@ -87,10 +87,16 @@ class Profile extends Component {
         })
         .then(res => res.json())
         .then(data => {
-            console.log('updateUserInfo ----------',data)
             if (data.status === 1) {
-                console.log('--------------',data.record)
-                toast.success('Updated your info.')
+                localStorage.setItem('email', this.state.email)
+                localStorage.setItem('fullname', this.state.fullname)
+                localStorage.setItem('nickname', this.state.nickname)
+                localStorage.setItem('gender', this.state.gender)
+                localStorage.setItem('age', this.state.age)
+                localStorage.setItem('photo', this.state.photo)
+                localStorage.setItem('updateuser', 1)
+
+                window.location.href = `/${localStorage.getItem('roomid')}`
             }
         })
         .catch(err => console.log(err))
@@ -199,11 +205,6 @@ class Profile extends Component {
                         />
                     </div>
                 ) : null}
-                <ToastContainer 
-                    autoClose={5000}
-                    hideProgressBar={true}
-                    position={toast.POSITION.BOTTOM_RIGHT}
-                />
             </div>
         )
     }

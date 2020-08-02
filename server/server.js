@@ -31,7 +31,8 @@ app.use(function (req, res, next) {
 });
 
 app.use(bodyParser.urlencoded({ extended: false }))
-app.use(bodyParser.json())
+app.use(bodyParser.json({limit: '10mb', extended: true}))
+app.use(bodyParser.urlencoded({limit: '10mb', extended: true}))
 
 // Socket communication
 io.on('connection', function (socket) {
@@ -193,6 +194,7 @@ class Sqlite {
             function (err, row) {
                 if (err) {
                     Debug.err('SQLite:  Failed in updating user with id', id, nickname)
+                    res.send({status: 0})
                 } else {
                     Debug.log(' Succeed in updating User account!', id, nickname)
                     res.send({status: 1, record: row})
@@ -233,7 +235,7 @@ class Sqlite {
 
                         var room_id
                         try{
-                            room_id = await getAvailableRoom(_DB, nickname); 
+                            room_id = await getAvailableRoom(_DB, nickname, false); 
                         } catch(e){
                             Debug.err(e.message, e.user)
                             room_id = null
@@ -286,7 +288,7 @@ class Sqlite {
                     if (row.roomid === '' && row.usercnt === 0) {
                         var room_id
                         try{
-                            room_id = await getAvailableRoom(_DB, row.email); 
+                            room_id = await getAvailableRoom(_DB, row.email, false); 
                         } catch(e){
                             Debug.err(e.message, e.user)
                             room_id = null
@@ -358,9 +360,11 @@ class Sqlite {
         var _DB = this.db
 
         if (parseInt(nickUser) === 0) { //Logged user
-            _DB.run("UPDATE meeting SET roomid=?, usercnt=? WHERE roomid=? AND id=?",
+            // _DB.run("UPDATE meeting SET roomid=?, usercnt=? WHERE roomid=? AND id=?",
+            _DB.run("UPDATE meeting SET roomid=?, usercnt=? WHERE id=?",
             [
-                '', 0, roomId, userId
+                // '', 0, roomId, userId
+                '', 0, userId
             ],
             function (err, row) {
                 if (err) 
@@ -381,10 +385,11 @@ class Sqlite {
         }
     }
 
-    // Set Remote user data
+    // Set Remote user data (next user data)
     setNextUser(roomId, userId, nickUser, res) {
         var _DB = this.db
 
+        // Get room users
         _DB.get("SELECT count(*) cnt, * FROM meeting WHERE roomId=?",
         [
             roomId,
@@ -394,7 +399,7 @@ class Sqlite {
                     Debug.err('SQLite:  Failed in getting user with roomId', roomId, nickUser);
                     return;
                 } else {
-                    updateRoomUsers(_DB, roomId, userId, row.cnt, row.nickname, res)
+                    updateRoomUsersWhenNext(_DB, roomId, userId, row.cnt, row.nickname, res, nickUser)
                 }
             }
         )
@@ -441,7 +446,7 @@ function getSignUserDataWithFullnameAndPassword(_DB, emailOruser, password, res)
                     if (row.roomid === '' && row.usercnt === 0) {
                         var room_id
                         try{
-                            room_id = await getAvailableRoom(_DB, row.fullname); 
+                            room_id = await getAvailableRoom(_DB, row.fullname, false); 
                         } catch(e){
                             Debug.err(e.message, e.user)
                             room_id = null
@@ -486,23 +491,35 @@ function getForgotPasswordWithFullname(_DB, emailOruser, res) {
         }
     );
 }
-function getAvailableRoom(_DB, name) {
+function getAvailableRoom(_DB, name, isNextUser) {
     return new Promise(async (resolve, reject) => {
-        await _DB.get("SELECT count(*) cnt, * FROM meeting WHERE usercnt=1 LIMIT 1",
+        var sql
+        if (isNextUser)
+            sql = 'SELECT count(*) cnt, * FROM meeting WHERE usercnt=1 AND _ROWID_ >= (abs(random()) % (SELECT max(_ROWID_) FROM meeting)) LIMIT 1'
+        if (!isNextUser)
+            sql = 'SELECT count(*) cnt, * FROM meeting WHERE usercnt=1 LIMIT 1'
+        await _DB.get(sql,
             function (err, row) {
                 if (err) {
-                    reject({ message: 'SQLite:  Failed in searching user', user: name })
+                    // reject({ message: 'SQLite:  Failed in searching user', user: name })
+                    reject(new Error("Whoops!"))
                 } else {
                     if (row.cnt !== 0) {
-                        Debug.log(' Available room name.', row.roomid, row.usercnt, row.nickname)
+                        // console.log('------------', isNextUser, sql, name)
+                        Debug.log(' Available room name.', row.roomid, row.usercnt, row.nickname, row.id, row.email)
                         resolve(row.roomid)
                     } else {
-                        reject({ message: ' Failed in searching user', user: name })
+                        // reject({ message: ' Failed in searching user', user: name })
+                        reject(new Error("Whoops1111111!"))
                     }
                 }
             }
         );
-    })
+    }).catch((result) => {
+        console.log('catch---------------', result)
+
+        // throw new Error("error:-----------!");
+    }); // Error: Whoops!
 }
 function updateUserInfoWithRoomid(_DB, nickname, roomid) {
     var usercnt = 0
@@ -549,45 +566,47 @@ function updateUserInfoWithRoomid(_DB, nickname, roomid) {
         })
     }
 }
-function updateUserAfterRemoteUserDisconnet(_DB, roomId, userId, nickname, res) {
+
+// For the (next, Exit) user
+function updateUserAfterRemoteUserDisconnet(_DB, roomId, userId, nickname, res, newRoomId, isNewRoom) {
+    // Remote user data Update
     _DB.run("UPDATE meeting SET roomid=?, usercnt=? WHERE roomid=? AND id!=?",
     [
-        roomId, 1, roomId, userId
+        roomId, !isNewRoom ? 1 : 2, roomId, userId
     ],
     async function (err, row) {
-        if (err) 
-            return Debug.err(' SQLITE: Failed in updating the remote user.', roomId, userId)
-        
-        var room_id = ''
-        if (nickname !== '') {
-            room_id = await getAvailableRoom(_DB, nickname);
-            await updateUserRoomId(_DB, room_id, userId);
+        if (err) {
+            Debug.err(' SQLITE: Failed in updating the remote user.', roomId, userId)
+            return res.send({status: 2, message: 'SQLITE: Failed in updating the user', newroom: newRoomId})
+        } else {
+            var room_id = ''
+            // If nickname is available, exit user, if not, next user
+            if (nickname !== '') { 
+                // Local(Self) user data update with next room
+                updateSelfUserRoomId(_DB, newRoomId, userId);
+                // Remote user data update in next room
+                updateUserAfterRemoteUserDisconnet(_DB, newRoomId, userId, '', res, newRoomId, true);
+            }
+            Debug.log(' Succeed in updating the remote user.', roomId, userId)
+            return res.send({status: 1, message: 'Updated Room remote user', newroom: newRoomId})
         }
+    })
+}
 
-        Debug.log(' Succeed in updating the remote user.', roomId, userId)
-        return res.send({status: 1, message: 'Updated Room remote user', newroom: room_id})
-    })
-}
-function updateRoomUsers(_DB, roomId, userId, userCount, nickname, res) {
-    _DB.run("UPDATE meeting SET roomid=?, usercnt=? WHERE roomid=? AND id=?",
-    [
-        roomId, 1, roomId, userId
-    ],
-    async function (err, row) {
-        if (err) 
-            return Debug.err(' SQLITE: Failed in updating the Room users.', roomId, userId)
-        
-        if (userCount === 2) { updateUserAfterRemoteUserDisconnet(_DB, roomId, userId, nickname, res) }
-        else {
-            const room_id = await getAvailableRoom(_DB, nickname);
-            await updateUserRoomId(_DB, room_id, userId);
+// For next user
+async function updateRoomUsersWhenNext(_DB, roomId, userId, userCount, nickname, res) {
+    const newRoomId = await getAvailableRoom(_DB, nickname, true);
+    if (newRoomId === roomId || newRoomId === undefined) {
+        return res.send({status: 2, message: 'There is no available room right now.', newroom: newRoomId})
+    }
+    console.log('room_id-------', newRoomId, roomId)
     
-            Debug.log(' Succeed in updating the Room users.', room_id, userId)
-            return res.send({status: 1, message: 'Updated Room user', newroom: room_id})
-        }
-    })
+    // Update other user's data and self data
+    updateUserAfterRemoteUserDisconnet(_DB, roomId, userId, nickname, res, newRoomId) 
 }
-function updateUserRoomId(_DB, roomId, userId) {
+
+// For self user
+function updateSelfUserRoomId(_DB, roomId, userId) {
     _DB.run("UPDATE meeting SET roomid=?, usercnt=? WHERE id=?",
     [
         roomId, 2, userId
@@ -610,8 +629,6 @@ app.post('/saveNicknameAndcheckRoom', function (req, res) {
     Sqlite.getInstance().saveNicknameAndcheckRoom(nickname, age, gender, photo, res)
 })
 app.post('/updateSignUserData', function (req, res) {
-    // const { photo } = req.body
-    // var id, email, fullname, nickname, gender, age, country 
     const { id, email, fullname, nickname, gender, age, country, photo } = req.body
     Sqlite.getInstance().updateSignUserData(id, email, fullname, nickname, gender, age, country, photo, res)
 })
