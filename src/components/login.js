@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 // import { IntegerInput } from './utils/slider'
-import shortId from 'shortid'
+// import shortId from 'shortid'
 import { serverAPI } from '../config'
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'

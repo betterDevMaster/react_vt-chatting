@@ -81,7 +81,6 @@ const VideoPanel  = () => {
   }, [])
 
   useEffect(() => {
-    console.log('updateuser --------', localStorage.getItem('updateuser'))
     if (parseInt(localStorage.getItem('updateuser')) === 1) {
       toast.info('Remote user info updated!')
       localStorage.setItem('updateuser', 0)

@@ -37,8 +37,8 @@
   box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
   background-color: #e8e8e8;
 }
-.chat-content div:last-child {
-  /* margin: 10px 0 10px 0; */
+.header-control-btns{
+  display: flex;
 }
 
 .chat-bottom {

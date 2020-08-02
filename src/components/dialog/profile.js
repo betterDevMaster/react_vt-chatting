@@ -56,10 +56,6 @@ class Profile extends Component {
         this.setState({age: event.target.value})
     }
 
-    onChangeGender = event => {
-        this.setState({gender: event.target.value})
-    }
-
     onChangeCountry = event => {
         this.setState({country: event.target.value})
     }

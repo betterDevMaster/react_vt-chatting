@@ -7,6 +7,9 @@ const PORT = 8080
 const cors = require('cors');
 const { SSL_OP_NETSCAPE_DEMO_CIPHER_CHANGE_BUG } = require('constants');
 const { debuglog } = require('util');
+var geoip = require('geoip-country');
+const { countries } = require('./config')
+
 server.listen(PORT);
 
 // Cors resovle
@@ -29,6 +32,10 @@ app.use(function (req, res, next) {
    res.setHeader('Access-Control-Allow-Credentials', true);
    next();
 });
+
+// app.use('*', (req, res) => {
+//     res.status(404).json({ msg: 'Not Found' })
+// })
 
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json({limit: '10mb', extended: true}))
@@ -143,7 +150,7 @@ class Sqlite {
     }
 
     // Save Normal user
-    async saveSignUserData(email, fullname, nickname, age, gender, password, photo, res) {
+    async saveSignUserData(email, fullname, nickname, age, gender, password, photo, req, res) {
         var _DB = this.db;
 
         var lastId
@@ -172,8 +179,28 @@ class Sqlite {
                         Debug.err('Duplicate user!')
                         return res.send({status: 2, message: 'Duplicate user!'})
                     } else {
-                        const value = [lastId, email, fullname, nickname, age, gender, password, '', 0, 'Colombia', photo, 0];
-                        await insertNewUser(_DB, value)
+                        // var ip = "207.97.227.239";
+                        var ip = req.headers.host.split(':')[0];
+
+                        console.log('ip : ', ip)
+                        var geo = geoip.lookup(ip);
+                        
+                        console.log("The local IP and Geo IP is %s %s", ip, geo);
+                        var country, countryName
+                        if (geo) {
+                            country = countries.filter(function(country) {
+                                if (country.value === geo.country)
+                                    return country
+                            });
+                            countryName = country[0].name
+                        } else {
+                            countryName = 'Colombia'
+                        }
+
+                        console.log('result ----------', country, countryName);
+                        
+                        const value = [lastId, email, fullname, nickname, age, gender, password, '', 0, countryName, photo, 0];
+                        // await insertNewUser(_DB, value)
                         Debug.log(' Succeed in creating Normal User account!', nickname)
 
                         return res.send({status: 3, message: 'Create Success: ' + fullname})
@@ -228,8 +255,27 @@ class Sqlite {
                 } else {
                     if (row.cnt == 0) {
                         // id email fullname nickname age gender password roomid usercnt country photo
+                        // var ip = "207.97.227.239";
+                        var ip = req.headers.host.split(':')[0];
 
-                        const value = [lastId, '', '', nickname, age, gender, '', '', 0, 'Colombia', photo, 1];
+                        console.log('ip : ', ip)
+                        var geo = geoip.lookup(ip);
+                        
+                        console.log("The local IP and Geo IP is %s %s", ip, geo);
+                        var country, countryName
+                        if (geo) {
+                            country = countries.filter(function(country) {
+                                if (country.value === geo.country)
+                                    return country
+                            });
+                            countryName = country[0].name
+                        } else {
+                            countryName = 'Colombia'
+                        }
+
+                        console.log('result ----------', country, countryName);
+
+                        const value = [lastId, '', '', nickname, age, gender, '', '', 0, countryName, photo, 1];
                         await insertNewUser(_DB, value)
                         Debug.log(' Succeed in creating Nick User account!', nickname)
 
@@ -248,7 +294,7 @@ class Sqlite {
                             row.nickname = nickname
                             row.age = age
                             row.gender = gender
-                            row.country = 'Colombia'
+                            row.country = countryName
                             row.photo = photo
                             row.usercnt = usercnt
                             row.nickuser = 1
@@ -396,10 +442,35 @@ class Sqlite {
         ],
             async function (err, row) {
                 if (err) {
-                    Debug.err('SQLite:  Failed in getting user with roomId', roomId, nickUser);
-                    return;
+                    return Debug.err('SQLite:  Failed in getting user with roomId', roomId, nickUser);
                 } else {
-                    updateRoomUsersWhenNext(_DB, roomId, userId, row.cnt, row.nickname, res, nickUser)
+                    updateRoomUsersWhenNext(_DB, roomId, userId, row.nickname, res, nickUser)
+                }
+            }
+        )
+    }
+
+    // Get available rooms for search
+    getAvailableRooms(gender, min, max, res) {
+        var _DB = this.db
+        // Get rooms
+        var sql = ''
+
+        if (parseInt(gender) === 0)
+            sql = 'SELECT * FROM meeting WHERE usercnt=1 AND age BETWEEN $min and $max'
+        else if (parseInt(gender) === 1)
+            sql = 'SELECT * FROM meeting WHERE usercnt=1 AND gender=1 AND age BETWEEN $min and $max'
+        else if (parseInt(gender) === 2)
+            sql = 'SELECT * FROM meeting WHERE usercnt=1 AND gender=2 AND age BETWEEN $min and $max'
+
+        _DB.all(sql,
+            {$min: min, $max: max},
+            function (err, row) {
+                if (err) {
+                    return Debug.err('SQLite:  Failed in getting user with roomId');
+                } else {
+                    Debug.log('  Succeed in getting rooms for search', row.id, row.nickname);
+                    return res.send({ status: 3, record: row})
                 }
             }
         )
@@ -517,7 +588,6 @@ function getAvailableRoom(_DB, name, isNextUser) {
         );
     }).catch((result) => {
         console.log('catch---------------', result)
-
         // throw new Error("error:-----------!");
     }); // Error: Whoops!
 }
@@ -594,7 +664,7 @@ function updateUserAfterRemoteUserDisconnet(_DB, roomId, userId, nickname, res, 
 }
 
 // For next user
-async function updateRoomUsersWhenNext(_DB, roomId, userId, userCount, nickname, res) {
+async function updateRoomUsersWhenNext(_DB, roomId, userId, nickname, res) {
     const newRoomId = await getAvailableRoom(_DB, nickname, true);
     if (newRoomId === roomId || newRoomId === undefined) {
         return res.send({status: 2, message: 'There is no available room right now.', newroom: newRoomId})
@@ -622,7 +692,7 @@ function updateSelfUserRoomId(_DB, roomId, userId) {
 
 app.post('/saveSignUserData', function (req, res) {
     const { email, fullname, nickname, age, gender, password, photo } = req.body
-    Sqlite.getInstance().saveSignUserData(email, fullname, nickname, age, gender, password, photo, res)
+    Sqlite.getInstance().saveSignUserData(email, fullname, nickname, age, gender, password, photo, req, res)
 })
 app.post('/saveNicknameAndcheckRoom', function (req, res) {
     const { nickname, age, gender, photo } = req.body
@@ -651,6 +721,10 @@ app.post('/setDisconnectUser', function (req, res) {
 app.post('/setNextUser', function (req, res) {
     const { roomId, userId, nickUser } = req.body
     Sqlite.getInstance().setNextUser(roomId, userId, nickUser, res)
+})
+app.post('/getAvailableRooms', function (req, res) {
+    const { gender, min, max } = req.body
+    Sqlite.getInstance().getAvailableRooms(gender, min, max, res)
 })
 app.use('*', (req, res) => {
     res.status(404).json({ msg: 'Not Found' })

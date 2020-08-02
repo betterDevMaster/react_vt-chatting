@@ -12,6 +12,7 @@
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
     "express": "^4.16.4",
+    "geoip-country": "^4.0.29",
     "node-where": "^1.1.0",
     "socket.io": "^2.2.0",
     "sqlite3": "^5.0.0"

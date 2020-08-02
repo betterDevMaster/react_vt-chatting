@@ -18,21 +18,21 @@ export const IntegerInput = ({ value, min, max, onChange }) => {
             onChange={ (event) => {
                 const newValue = event.target.value;
                 if (regexp.test(newValue)) {
-                setInternalValue(newValue);
-                let newValid = isValid(newValue, min, max);
-                setValid(newValid);
-                if (newValid) {
-                    onChange(newValue);
-                }
+                    setInternalValue(newValue);
+                    let newValid = isValid(newValue, min, max);
+                    setValid(newValid);
+                    if (newValid) {
+                        onChange(newValue);
+                    }
                 }
             } }
             onBlur={ () => {
                 if (internalValue < min) {
-                setInternalValue(min);
+                    setInternalValue(min);
                 } else if (internalValue > max) {
-                setInternalValue(max);
+                    setInternalValue(max);
                 } else {
-                setInternalValue(value);
+                    setInternalValue(value);
                 }
                 setValid(true);
             } }
