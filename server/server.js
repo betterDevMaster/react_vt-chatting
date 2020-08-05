@@ -200,7 +200,7 @@ class Sqlite {
                         console.log('result ----------', country, countryName);
                         
                         const value = [lastId, email, fullname, nickname, age, gender, password, '', 0, countryName, photo, 0];
-                        // await insertNewUser(_DB, value)
+                        await insertNewUser(_DB, value)
                         Debug.log(' Succeed in creating Normal User account!', nickname)
 
                         return res.send({status: 3, message: 'Create Success: ' + fullname})
@@ -231,7 +231,7 @@ class Sqlite {
     }
 
     // Save Nick user
-    async saveNicknameAndcheckRoom(nickname, age, gender, photo, res) {
+    async saveNicknameAndcheckRoom(nickname, age, gender, photo, req, res) {
         var _DB = this.db
 
         var lastId
@@ -696,7 +696,7 @@ app.post('/saveSignUserData', function (req, res) {
 })
 app.post('/saveNicknameAndcheckRoom', function (req, res) {
     const { nickname, age, gender, photo } = req.body
-    Sqlite.getInstance().saveNicknameAndcheckRoom(nickname, age, gender, photo, res)
+    Sqlite.getInstance().saveNicknameAndcheckRoom(nickname, age, gender, photo, req, res)
 })
 app.post('/updateSignUserData', function (req, res) {
     const { id, email, fullname, nickname, gender, age, country, photo } = req.body

@@ -67,6 +67,7 @@ class SearchRoom extends Component {
                 } else if (data.status === 2) {
                     toast.error(data.message)
                 } else if (data.status === 3) {
+                    console.log(data)
                     data.record.forEach(element => {
                         element.name = element.fullname
                         element.value = element.nickname

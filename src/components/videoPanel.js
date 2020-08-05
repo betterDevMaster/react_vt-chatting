@@ -60,6 +60,9 @@ const VideoPanel  = () => {
     });
 
     socket.on('disconnected', () => {
+      console.log('disconnect user-------')
+      setMessages([])
+      // socket.emit('newChatMessage', { message, 0, roomId });
       initiator.current = true;
     });
 
